@@ -1,4 +1,4 @@
-function hPlotNet=plotTrackStats(handles,typeOfPlot,currentTrack,micronsPerPixel,framesPerSec,secondTrack)
+function [hPlotNet,distBetweenTracks] =plotTrackStats(handles,typeOfPlot,currentTrack,micronsPerPixel,framesPerSec,secondTrack)
 %function hPlotNet=plotTrackStats(handles)
 %function hPlotNet=plotTrackStats(handles,typeOfPlot)
 %function
