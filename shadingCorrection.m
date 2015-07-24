@@ -1,4 +1,4 @@
-function [dataOut,errSurface,errSurfaceMin,errSurfaceMax] = shadingCorrection(dataIn,numScales)
+function [dataOut,errSurface,errSurfaceMin,errSurfaceMax] = shadingCorrection(dataIn,numScales,stopCriterion)
 %function [dataOut,errSurface,errSurfaceMin,errSurfaceMax] = shadingCorrection(dataIn)
 %
 %-------- this function corrects the shading from images -----------------------------
@@ -39,8 +39,10 @@ end
 if ~exist('numScales','var')
     numScales                           = 55;       % maximum distance of analysis
 end
-stopCriterion                       = 0.05;     % stop criterion difference between steps
-% 
+if ~exist('stopCriterion','var')
+    stopCriterion                       = 0.05;     % stop criterion difference between steps
+end
+    % 
 % % initialise parameters
 % y_scaleMax(rows,cols,numScales)     = 0;
 % y_scaleMin(rows,cols,numScales)     = 0;
@@ -117,7 +119,7 @@ else
     %---- adjust a surface to the maxima/minima of the data
 
     for cStep=1:2:numScales
-        %disp(cStep)
+        disp(cStep)
         %each scale will find the average of the opposite neighbours of
         %a pixel at different degrees of separation
         cStep2                              = ceil(cStep/2);
