@@ -196,11 +196,17 @@ if typeOfPlot<5
     % all plots here are for a single track, the plotting points are selected
     % according to currentTrack and then XX,YY,ZZ are obtained
     if typeOfPlot==-1
+        if (currentTrack>numTracks)|(secondTrack>numTracks)
+            disp('The tracks selected are not valid.')
+            hPlotNet        = [];distBetweenTracks=[];
+            return;
+        end
         
         plottingPoints_1    = neighNetwork(1:hPlotNet.finalNetwork(currentTrack),currentTrack);
         plottingPoints_2    = neighNetwork(1:hPlotNet.finalNetwork(currentTrack),secondTrack);
         if numel(plottingPoints_1)<3
             disp('Track has less than 3 points, no plots will be generated')
+            hPlotNet        = [];distBetweenTracks=[];
             return;
         end
         % Find the valid positions ON THE neighNetwork
@@ -222,6 +228,14 @@ if typeOfPlot<5
         
         distBetweenTracks(1:handles.numFrames)   = -1;
         distBetweenTracks(posOverlap)   = sqrt((XX_1-XX_2).^2 +(YY_1-YY_2).^2  );
+        
+        jumpsTime  = find(diff(posOverlap)>1);
+        
+        if (any(jumpsTime))
+            %these positions will be empty
+            emptyPositions = posOverlap(jumpsTime)+1;
+            distBetweenTracks(emptyPositions) = 0.5*distBetweenTracks(emptyPositions-1)+0.5*distBetweenTracks(emptyPositions+1);
+        end
         
         %-----distance between two tracks
      
