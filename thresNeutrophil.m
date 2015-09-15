@@ -81,7 +81,11 @@ end
 indexGreen = (handles.ChannelDistribution(1):handles.ChannelDistribution(2));
 indexRed = (handles.ChannelDistribution(5):handles.ChannelDistribution(6));
 indexDIC = (handles.ChannelDistribution(3):handles.ChannelDistribution(4));
-            
+    
+if (indexRed~=0)&(numel(handles.minBlob)==1)
+    handles.minBlob(2) = handles.minBlob(1);
+end
+
 if isa(dataIn,'char')
     % --------------------------- dataInName is not mat file, should be a folder with a)matlab files
     dir1 = dir(strcat(dataIn,'/*.mat'));

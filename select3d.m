@@ -53,6 +53,13 @@ function [pout, vout, viout, facevout, faceiout]  = select3d(obj)
 %  Send comments to jconti@mathworks.com
 %
 %  See also GINPUT, GCO.
+% -------------------------------------
+% as of R2015a, some variables are no longer available, so the current file
+% has been modified and is only guaranteed to work for lines
+% -------------------------------------
+
+
+
 
 % Output variables
 pout = [];
@@ -168,12 +175,34 @@ xvert(2,:) = xvert(2,:) - xcp(2,2);
 %% simple algorithm (almost naive algorithm!) for line objects %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if isline
-
-    % Ignoring line width and marker attributes, find closest 
-    % vertex in 2-D view space.
-    d = xvert(1,:).*xvert(1,:) + xvert(2,:).*xvert(2,:);
-    [val i] = min(d);
-    i = i(1); % enforce only one output
+   
+    % ------------------------------------------------------------------------------
+    % detect if the property 'x_RenderTransform' exists, if it does, use the original
+    % methods of select3D, otherwise use a line to find the intersection of the line
+    try
+        xform   = get(ax,'x_RenderTransform');
+        % Ignoring line width and marker attributes, find closest
+        % vertex in 2-D view space.
+        d = xvert(1,:).*xvert(1,:) + xvert(2,:).*xvert(2,:);
+        [val i] = min(d);
+        i = i(1); % enforce only one output
+    catch
+        % project the line obtained with cp and find the intersection with the
+        % detected line
+        xPr = linspace(cp(1,1),cp(1,2),100);
+        yPr = linspace(cp(2,1),cp(2,2),100);
+        zPr = linspace(cp(3,1),cp(3,2),100);
+        pProj=[xPr' yPr' zPr'];
+        for k1=1:100
+            for k2=1:size(vert,1)
+                distanceBetweenLines(k1,k2) = sum((vert(k2,:)-pProj(k1,:)).^2);
+            end
+        end
+        
+        [val i] = min(min(distanceBetweenLines));
+        i = i(1); % enforce only one output
+    end
+    % ------------------------------------------------------------------------------
     
     % Assign output
     vout = [ xdata(i) ydata(i) zdata(i)];
@@ -309,10 +338,27 @@ end
 function [p] = local_Data2PixelTransform(ax,vert)
 % Transform vertices from data space to pixel space.
 
-% Get needed transforms
-xform = get(ax,'x_RenderTransform');
-offset = get(ax,'x_RenderOffset');
-scale = get(ax,'x_RenderScale');
+% ------------------------------------------------------------------------------
+% Get needed transforms for versions of Matlab previous to R2014 there was
+% a field (non-documented by Mathworks) called x_RenderTransform. For later
+% versions it is necessary to obtain this and the following three fields in
+% an indirect way.
+try
+    xform   = get(ax,'x_RenderTransform');
+    offset  = get(ax,'x_RenderOffset');
+    scale   = get(ax,'x_RenderScale');
+catch
+    offset=[0 0 0]; scale = [1 1 1];
+    nvert(:,1) = vert(:,1)./scale(1) - offset(1);
+    nvert(:,2) = vert(:,2)./scale(2) - offset(2);
+    nvert(:,3) = vert(:,3)./scale(3) - offset(3);  
+    %xform = view;
+    
+    [az,el]=view;
+    xform = viewmtx(az,el);
+end
+% ------------------------------------------------------------------------------
+
 
 % Equivalent: nvert = vert/scale - offset;
 nvert(:,1) = vert(:,1)./scale(1) - offset(1);
@@ -320,9 +366,9 @@ nvert(:,2) = vert(:,2)./scale(2) - offset(2);
 nvert(:,3) = vert(:,3)./scale(3) - offset(3);
 
 % Equivalent xvert = xform*xvert;
-w = xform(4,1) * nvert(:,1) + xform(4,2) * nvert(:,2) + xform(4,3) * nvert(:,3) + xform(4,4);
-xvert(:,1) = xform(1,1) * nvert(:,1) + xform(1,2) * nvert(:,2) + xform(1,3) * nvert(:,3) + xform(1,4);
-xvert(:,2) = xform(2,1) * nvert(:,1) + xform(2,2) * nvert(:,2) + xform(2,3) * nvert(:,3) + xform(2,4);
+w           = xform(4,1) * nvert(:,1) + xform(4,2) * nvert(:,2) + xform(4,3) * nvert(:,3) + xform(4,4);
+xvert(:,1)  = xform(1,1) * nvert(:,1) + xform(1,2) * nvert(:,2) + xform(1,3) * nvert(:,3) + xform(1,4);
+xvert(:,2)  = xform(2,1) * nvert(:,1) + xform(2,2) * nvert(:,2) + xform(2,3) * nvert(:,3) + xform(2,4);
 
 % w may be 0 for perspective plots 
 ind = find(w==0);

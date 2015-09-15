@@ -307,7 +307,8 @@ if typeOfPlot<5
             end
         end
         anglPerHop2(isnan(anglPerHop2)) = 0;
-        anglPerHopCum = abs(cumsum(anglPerHop2));
+        anglPerHopCum       = abs(cumsum(anglPerHop2));
+        anglPerHopCum    = imfilter(anglPerHopCum,[0.25 0.5 0.25],'replicate');
         %find number of turns
         currTurns = 0;
         pointsTurn =[];
