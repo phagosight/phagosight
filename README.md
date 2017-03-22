@@ -24,3 +24,12 @@ set to empty arrays `[]`. For a detailed review of the input parameters, the
 ```Matlab
 help neutrophilAnalysis
 ```
+### Output and results
+Phagosight returns variable `handles`, which contains information about the 
+tracks and locations where results from intermediate steps are stored. For 
+example, if the path to data is a folder with name `Data/`, then the new 
+folders created:
+* `Data_mat_Or` Stores the original data in Matlab's own `.mat` format.
+* `Data_mat_Re` Stores the data after preprocessing, whether it is reduction 
+ by subsampling or filtering (if size is not reduced)
+* `Data_mat_La` Stores the labelled data after segmentation. 
