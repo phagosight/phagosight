@@ -13,3 +13,10 @@ by the command
 ```Matlab
 [handles] = neutrophilAnalysis();
 ```
+The program can be fully automatic, the user knows some or all the parameters.
+An example of this:
+```Matlab
+[handles] = neutrophilAnalysis('/path/to/data/', 0, [], [0.2 0.4]);
+```
+where parameters not known, or that want to be taken by default, are simply
+set to empty arrays `[]`.
