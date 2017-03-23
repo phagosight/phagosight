@@ -1,4 +1,4 @@
-# phagosight
+ phagosight
 Tracking Algorithms for Phagocytes and other moving objects.
 
 ## Instalation
@@ -23,4 +23,25 @@ set to empty arrays `[]`. For a detailed review of the input parameters, the
 `help` command outputs all the information the user might need.
 ```Matlab
 help neutrophilAnalysis
+```
+## Citation
+Phagosight is released under the GNU General Public License v3.
+
+Please cite Phagosight in your publications if it helps your research:
+```BibTex
+@article{Henry2013,
+author = {Henry, Katherine and Pase, Luke and Ramos-Lopez, Carlos Fernando and
+Lieschke, Graham J. and Renshaw, Stephen a. and Reyes-Aldasoro, Constantino Carlos},
+issn = {19326203},
+journal = {PLoS ONE},
+month = {January},
+number = {8},
+pages = {e72636},
+pmid = {24023630},
+title = {{PhagoSight: An Open-Source MATLAB\textsuperscript{\textregistered}\
+Package for the Analysis of
+Fluorescent Neutrophil and Macrophage Migration in a Zebrafish Model}},
+volume = {8},
+year = {2013}
+}
 ```

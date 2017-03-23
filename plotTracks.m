@@ -6,7 +6,7 @@ function  hPlotNet=plotTracks(handles,typeOfPlot,frameToPlot,micronsPerPixel,...
 %                    framesPerSec,currentColour)
 %
 %--------------------------------------------------------------------------
-% plotTracks  Basic command to plot the tracks of a neutrophil analysis, 
+% plotTracks  Basic command to plot the tracks of a neutrophil analysis,
 %     it plots in many ways
 %
 %       INPUT
@@ -70,7 +70,7 @@ function  hPlotNet=plotTracks(handles,typeOfPlot,frameToPlot,micronsPerPixel,...
 %     GNU General Public License for more details.
 %
 %     You should have received a copy of the GNU General Public License
-%     along with the PhagoSight package.  If not, see 
+%     along with the PhagoSight package.  If not, see
 %
 %                  <http://www.gnu.org/licenses/>.
 %
@@ -88,9 +88,9 @@ function  hPlotNet=plotTracks(handles,typeOfPlot,frameToPlot,micronsPerPixel,...
 %
 %--------------------------------------------------------------------------
 %
-% The authors shall not be liable for any errors or responsibility for the 
+% The authors shall not be liable for any errors or responsibility for the
 % accuracy, completeness, or usefulness of any information, or
-% method in the content, 
+% method in the content,
 % or for any actions taken in reliance thereon.
 %
 %--------------------------------------------------------------------------
@@ -100,9 +100,9 @@ function  hPlotNet=plotTracks(handles,typeOfPlot,frameToPlot,micronsPerPixel,...
 %------ no input data is received, error -------------------------
 %------ at least 2 parameters are required
 if (nargin <1)
-    help plotTracks; 
-    hPlotNet=[]; 
-    return;  
+    help plotTracks;
+    hPlotNet=[];
+    return;
 end
 %------ arguments received revision   ----------------------------
 if (~exist('typeOfPlot','var'))
@@ -111,7 +111,7 @@ end
 if (~exist('frameToPlot','var') || isempty(frameToPlot))
     frameToPlot=1;
 end
-if (~exist('currentColour','var'));         
+if (~exist('currentColour','var'));
     currentColour=1;
 end
 changeSecToMin = 0;
@@ -131,7 +131,7 @@ if isa(handles,'cell')
     end
     axis tight;
 else
-    
+
     typeOfPlot3 = 0;
     if (typeOfPlot<0)
         nodeNetwork = handles.nodeNetwork(:,[1 2 3]);
@@ -145,13 +145,13 @@ else
                 typeOfPlot3 = 1;
                 typeOfPlot = 1;
                 typeOfPlot2 = 0;
-                
+
               case 16
                 nodeNetwork = handles.nodeNetwork(:,[1 10 5 ]);
                 typeOfPlot3 = 2;
                 typeOfPlot = 1;
                 typeOfPlot2 = 0;
-                
+
               case 17
                 nodeNetwork = handles.nodeNetwork(:,[2 10 5 ]);
                 typeOfPlot3 = 1;
@@ -159,20 +159,20 @@ else
               case 18
                 nodeNetwork = handles.nodeNetwork(:,[1 10 5 ]);
                 typeOfPlot3 = 2;
-                clear micronsPerPixel framesPerSec;    
-                
+                clear micronsPerPixel framesPerSec;
+
             end
             typeOfPlot2 = 0;
-            
+
         else
             nodeNetwork = handles.nodeNetwork(:,[1 2 5]);
             typeOfPlot2 = 0;
         end
     end
-    
+
     % the number of tracks can be restricted to a subset of them
     % with certain characteristics by addressing the matrix for
-    % instance: 
+    % instance:
     % plotTracks(handles,15,(handles.distanceNetwork.numHops>30))
     % thus frameToPlot acts as the definition of the subset EXCEPT if the type of
     % plot is 9 and in that case they act as the coordinates in which the tracks
@@ -181,7 +181,7 @@ else
         finalNetwork = handles.finalNetwork;
     else
         if numel(frameToPlot)>1
-            
+
             if any(frameToPlot)
                 try
                     finalNetwork = handles.finalNetwork(:,frameToPlot);
@@ -198,19 +198,19 @@ else
             finalNetwork = handles.finalNetwork;
         end
     end
-    
+
     %define all the labels according to the input arguments
     if (~exist('micronsPerPixel','var'))||(~exist('framesPerSec','var'))
         lab_Velo_mm_s  = 'Velocity [pix/frame]';
     else
         if framesPerSec<0.05
-            
+
             lab_Velo_mm_s = 'Velocity [\mum /min]';
         else
             lab_Velo_mm_s = 'Velocity [\mum /s]';
         end
     end
-    
+
     if ~exist('micronsPerPixel','var') ;
         micronsPerPixel = 1;
         if typeOfPlot3>0
@@ -240,7 +240,7 @@ else
         elseif framesPerSec<0.05
             changeSecToMin = 1;
             lab_Time_fps = 'Time [min]';
-        else 
+        else
             lab_Time_fps = 'Time [sec]';
         end
     else
@@ -249,14 +249,14 @@ else
             framesPerSec = 1;
         end
     end
-    
+
     if changeSecToMin==1
         framesPerSec = framesPerSec * 60;
     end
-    
+
     %------ regular size check ---------------------------------------
     numTracks = size(finalNetwork,2);
-    
+
     % Get axis ready
     h0 = gcf;
     h1 = gca;
@@ -268,8 +268,8 @@ else
     set(hColB,'visible','off');
     hold on;
     set(h1,'Color',[1 1 1]);
-    
-    
+
+
     %------- colour codes for the plot
     colorID2 = {'o', 'x', 's', '+', 'v',  '*', '^', '<', '>','h','p'};
     colorID3=0.9*[ [0 0 1];[0 1 0];[1 0 0];...
@@ -279,8 +279,8 @@ else
                    [0 1 1];    [1 0 1];    [1 1 0 ];...
                    [0.5 0.5 0];[0.5 0 0.5];[0 0.5 0.5];...
                    [0.25 0.25 0.25];[0.25 1 0];[0.25 0 0.25];[0 0.25 0.25]];
-    
-    
+
+
     %-------- The structure of nodeNetwork will be [X Y z] each
     %-------- column is separately transformed int
     %-------- a matrix [depthB x numTracks] which will be used as
@@ -289,13 +289,13 @@ else
     nodeNetworkX = (nodeNetwork(:,2));
     nodeNetworkY = (nodeNetwork(:,1));
     nodeNetworkZ = (nodeNetwork(:,3));
-    
-    
+
+
     % ------------------ Calibration of the measurements -------------------------
     nodeNetworkZ = nodeNetworkZ/framesPerSec;
     nodeNetworkX = nodeNetworkX * micronsPerPixel;
     nodeNetworkY = nodeNetworkY * micronsPerPixel;
-    
+
     %----- a neighbourhood for the group of tracks has been received
     neighNetwork = finalNetwork;
     %----- finalNetwork will keep a vector with the lengths of the branches
@@ -303,7 +303,7 @@ else
     hPlotNet.numTracks = numTracks;
     hPlotNet.relDistPrevHop = [];
     hPlotNet.relAnglPrevHop = [];
-    
+
     %--------- loop over the tracks -----------------------------------
     for counterTrack=1:numTracks
         %------ determine WHICH nodes (points) correspond to the current Track
@@ -318,7 +318,7 @@ else
             else
                 XX = nodeNetworkX(plottingPoints);
             end
-            
+
             YY = nodeNetworkY(plottingPoints);
             ZZ = nodeNetworkZ(plottingPoints);
             ZZ2 = handles.nodeNetwork(plottingPoints,3);
@@ -328,7 +328,7 @@ else
             distPerHop = sqrt((sum(diffBetPoints.^2,2)));
             anglPerHop = acos(diffBetPoints(:,1)./(distPerHop+1e-30));
             distFromStart = sqrt(sum(diffBetStart.^2,2));
-            
+
             hPlotNet.anglFromStart(counterTrack) = atan2( (YY(end)-YY(1)) , ...
                                                           ( (XX(end)-XX(1))+1e-30));
             hPlotNet.avDistPerTrack(counterTrack) = mean(distPerHop);
@@ -340,10 +340,10 @@ else
             hPlotNet.stopX(counterTrack) = XX(end);
             hPlotNet.startY(counterTrack) = YY(1);
             hPlotNet.stopY(counterTrack) = YY(end);
-            
+
             hPlotNet.startFrameT(counterTrack) = TT(1);
             hPlotNet.stopFrameT(counterTrack) = TT(end);
-            
+
             hPlotNet.avX(counterTrack) = mean(XX);
             hPlotNet.avY(counterTrack) = mean(YY);
             hPlotNet.anglPerHop(counterTrack) = mean(anglPerHop);
@@ -355,7 +355,7 @@ else
             relDistP(relDistP>1000)=[];
             hPlotNet.relDistPrevHop = [hPlotNet.relDistPrevHop;relDistP];
             hPlotNet.relAnglPrevHop =[hPlotNet.relAnglPrevHop;relAnglP];
-            
+
             if typeOfPlot<11
                 hPlotNet.handlePlot(counterTrack) = plot3(...
                     XX,YY,ZZ,'marker',colorID2{1+rem(counterTrack-1,11)},...
@@ -383,7 +383,7 @@ else
                         XX,YY,ZZ,'marker','.','color','g','markersize',...
                         4,'linewidth',2);
                 else
-                    
+
                     if (mean(ZZ2)<=(handles.ChannelDistribution(2)))&&...
                             (mean(ZZ2)>=(handles.ChannelDistribution(1)))
                         hPlotNet.handlePlot(counterTrack) = plot3(...
@@ -401,7 +401,7 @@ else
                         XX,YY,ZZ,'marker','.','color','g','markersize',...
                         4,'linewidth',2);
                 else
-                    
+
                     if (mean(ZZ2)<=(handles.ChannelDistribution(2)))...
                             &&(mean(ZZ2)>=(handles.ChannelDistribution(1)))
                         hPlotNet.handlePlot(counterTrack) = plot3(...
@@ -422,19 +422,19 @@ else
             end
         end
     end
-    
-    
+
+
     zlabel(lab_Time_fps,'fontsize',18);
     xlabel(lab_Cols_dist,'fontsize',15);
     ylabel(lab_Rows_dist,'fontsize',15);
-    
+
     hPlotNet.totDistPerTrack(isnan(hPlotNet.totDistPerTrack))=0;
     hPlotNet.avDistPerTrack(isnan(hPlotNet.avDistPerTrack))=0;
     hPlotNet.finalNetwork(isnan(hPlotNet.finalNetwork))=0;
-    
+
     if typeOfPlot<10
         colorID6 = interp1(jet,linspace(1,64,hPlotNet.numTracks));
-        
+
         widthID = (linspace(2.5,2.5,hPlotNet.numTracks));
         switch typeOfPlot
           case 1
@@ -462,9 +462,9 @@ else
                                          'String',{lab_Velo_mm_s},'linestyle',...
                                          'none','fontsize',14,...
                                          'FitHeightToText','on');
-                
+
             end
-            
+
           case 3
             %------- highlights longer (in number of frames) branches
             [m1,m2] = sort(hPlotNet.finalNetwork);
@@ -496,7 +496,7 @@ else
             initBranch = max(1,sum(m1<4));
             widthID = (0.2+logspace(0.5,4.8,hPlotNet.numTracks)/30100);
           case 9
-            
+
             if numel(frameToPlot)==4
                 tracksToKeepX = find(...
                     (hPlotNet.startX>=frameToPlot(1))&...
@@ -504,17 +504,17 @@ else
                 tracksToKeepY = find(...
                     (hPlotNet.startY>=frameToPlot(3))&...
                     (hPlotNet.stopY<=frameToPlot(4)));
-                
+
                 tracksToKeep = intersect(tracksToKeepX,tracksToKeepY);
                 tracksNotToKeep = setdiff((1:numTracks),tracksToKeep);
                 m2 = [tracksToKeep tracksNotToKeep];
-                
+
                 widthID(numel(tracksToKeep)+1:numTracks)=0.5;
                 colorID6(numel(tracksToKeep)+1:numTracks,:)=...
                     repmat([1 1 1]*0.95,[numTracks-numel(tracksToKeep),1]);
-                
+
             else
-                
+
                 %------- plot ONLY those branches crossing the present Frame
                 tracksToKeep = find(...
                     (hPlotNet.startFrameT<=frameToPlot(1))&...
@@ -525,9 +525,9 @@ else
                 tracksToKeep3 = setdiff(tracksToKeep2,tracksToKeep);
                 tracksNotToKeep1 = setdiff((1:numTracks),tracksToKeep);
                 tracksNotToKeep2 = setdiff(tracksNotToKeep1,tracksToKeep3);
-                
+
                 m2 = [tracksToKeep3 tracksNotToKeep2 tracksToKeep];
-                
+
                 widthID(numel(tracksToKeep3)+1:numTracks- ...
                         numel(tracksToKeep)) = 0.5;
                 colorID6(numel(tracksToKeep3)+1:numTracks- ...
@@ -535,19 +535,19 @@ else
                     repmat([1 1 1]*0.8,[numTracks-...
                                     numel(tracksToKeep)-...
                                     numel(tracksToKeep3),1]);
-                
+
             end
-            
+
             initBranch =1;
         end
         hPlotNet.sortedBranches = m2;
-        
+
         if hPlotNet.numTracks > 15
             sizeForMarker = 5;
         else
             sizeForMarker = 9;
         end
-        
+
         for counterTrack=initBranch:hPlotNet.numTracks
             if (hPlotNet.handlePlot(m2(counterTrack)))~=0
                 set(hPlotNet.handlePlot(m2(counterTrack)),...
@@ -568,7 +568,7 @@ else
             end
         end
     end
-    
+
     grid on;rotate3d on;
     axis ij
     view(20,50)
