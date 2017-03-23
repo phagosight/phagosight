@@ -1,4 +1,4 @@
- phagosight
+# Phagosight
 Tracking Algorithms for Phagocytes and other moving objects.
 
 ## Installation
