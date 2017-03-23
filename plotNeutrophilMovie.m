@@ -856,10 +856,15 @@ function plotNeutrophilMovie (handlesDir,plotOption,tracksToPlot,framesToPlot)
     % Matlab versions prior to R2014 may have a bug in getframe and may create frames
     % with different sizes, in that case, reshape if necessary
     try
-        v = VideoWriter(strcat(videoDir,filesep,'video_1'), 'MPEG-4');
-        open(v);
-        writeVideo(v,F);
-        close(v);
+        try
+            movie2avi(F,strcat(videoDir,filesep,'video_1.avi'),...
+                'compression','none');
+        catch
+            v = VideoWriter(strcat(videoDir,filesep,'video_1'), 'MPEG-4');
+            open(v);
+            writeVideo(v,F);
+            close(v);
+        end
     catch
         %an error was detected whilst saving the movie, 
         [numRows,numCols,numChannels]= size(F(1).cdata);
@@ -870,10 +875,15 @@ function plotNeutrophilMovie (handlesDir,plotOption,tracksToPlot,framesToPlot)
             % to guarantee the same size, add a zero in the last pixel
             F(counterFrame).cdata(numRows,numCols,3)=0;
         end
-        v = VideoWriter(strcat(videoDir,filesep,'video_1'), 'MPEG-4');
-        open(v);
-        writeVideo(v,F);
-        close(v);
+        try
+            movie2avi(F,strcat(videoDir,filesep,'video_1.avi'),...
+                'compression','none');
+        catch
+            v = VideoWriter(strcat(videoDir,filesep,'video_1'), 'MPEG-4');
+            open(v);
+            writeVideo(v,F);
+            close(v);
+        end
     end
     %% save the movie as a GIF
     [imGif,mapGif] = rgb2ind(F(1).cdata,256,'nodither');
