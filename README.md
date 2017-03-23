@@ -24,29 +24,6 @@ set to empty arrays `[]`. For a detailed review of the input parameters, the
 ```Matlab
 help neutrophilAnalysis
 ```
-<<<<<<< HEAD
-## Citation
-Phagosight is released under the GNU General Public License v3.
-
-Please cite Phagosight in your publications if it helps your research:
-```BibTex
-@article{Henry2013,
-author = {Henry, Katherine and Pase, Luke and Ramos-Lopez, Carlos Fernando and
-Lieschke, Graham J. and Renshaw, Stephen a. and Reyes-Aldasoro, Constantino Carlos},
-issn = {19326203},
-journal = {PLoS ONE},
-month = {January},
-number = {8},
-pages = {e72636},
-pmid = {24023630},
-title = {{PhagoSight: An Open-Source MATLAB\textsuperscript{\textregistered}\
-Package for the Analysis of
-Fluorescent Neutrophil and Macrophage Migration in a Zebrafish Model}},
-volume = {8},
-year = {2013}
-}
-```
-=======
 ### Output and results
 Phagosight returns variable `handles`, which contains information about the 
 tracks and locations where results from intermediate steps are stored. For 
@@ -55,5 +32,26 @@ folders created:
 * `Data_mat_Or` Stores the original data in Matlab's own `.mat` format.
 * `Data_mat_Re` Stores the data after preprocessing, whether it is reduction 
  by subsampling or filtering (if size is not reduced)
-* `Data_mat_La` Stores the labelled data after segmentation. 
->>>>>>> origin/master
+* `Data_mat_La` Stores the labelled data after segmentation.
+## Citation
+Phagosight is released under the GNU General Public License v3.
+
+Please cite Phagosight in your publications if it helps your research:
+```BibTex
+@article{Henry2013,
+ author = {Henry, Katherine and Pase, Luke and Ramos-Lopez, Carlos Fernando and
+ Lieschke, Graham J. and Renshaw, Stephen a. and Reyes-Aldasoro, Constantino Carlos},
+ issn = {19326203},
+ journal = {PLoS ONE},
+ month = {January},
+ number = {8},
+ pages = {e72636},
+ pmid = {24023630},
+ title = {{PhagoSight: An Open-Source MATLAB\textsuperscript{\textregistered}\
+ Package for the Analysis of
+ Fluorescent Neutrophil and Macrophage Migration in a Zebrafish Model}},
+ volume = {8},
+ year = {2013}
+}
+```
+ 
