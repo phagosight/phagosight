@@ -1,6 +1,5 @@
 # Phagosight
 Tracking Algorithms for Phagocytes and other moving objects.
-
 ## Installation
 After cloning the repository, it is important to add it (with subfolders) to the
 Matlab path. Full manual and instructions can be found
@@ -34,8 +33,7 @@ folders created:
  by subsampling or filtering (if size is not reduced)
 * `Data_mat_La` Stores the labelled data after segmentation.
 ## Citation
-Phagosight is released under the GNU General Public License v3.
-
+Phagosight is released under the GNU General Public License v3. 
 Please cite Phagosight in your publications if it helps your research:
 ```BibTex
 @article{Henry2013,
