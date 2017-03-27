@@ -38,9 +38,9 @@ Please cite Phagosight in your publications if it helps your research:
 ```BibTex
 @article{Henry2013,
  author = {Henry, Katherine and Pase, Luke and Ramos-Lopez, Carlos Fernando and
- Lieschke, Graham J. and Renshaw, Stephen a. and Reyes-Aldasoro, Constantino Carlos},
+ Lieschke, Graham J. and Renshaw, Stephen A. and Reyes-Aldasoro, Constantino Carlos},
  issn = {19326203},
- journal = {PLoS ONE},
+ journal = {PLOS ONE},
  month = {January},
  number = {8},
  pages = {e72636},
