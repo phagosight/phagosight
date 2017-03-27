@@ -1,0 +1,40 @@
+# LaTeX and BibTeX extras (not needed!!) #
+##########################################
+*.aux
+*.log
+*.bbl
+*.blg
+*.out
+*.synctex.gz
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+*~
+
+# Compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Image files #
+###############
+*.tif
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.pdf
+
+# matlab files #
+##########
+*.mat
+*~
+*asv
+*.eps
+*.fig
