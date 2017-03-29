@@ -10,6 +10,7 @@ function [handles]= neutrophilAnalysis(dataInName,numLevelsToReduce,...
 %[handles]= neutrophilAnalysis(dataInName,numLevelsToReduce,...
 %                               dataStructure,thresLevels,minBlob)
 %
+%
 %--------------------------------------------------------------------------
 % neutrophilAnalysis is the main routine for the  neutrophil analysis
 %     All other subroutines are called from here. It computes the handles
