@@ -11,19 +11,24 @@ function plotNeutrophilMovie (handlesDir,plotOption,tracksToPlot,framesToPlot)
 %         handlesDir:       path to where the handles are saved, it also 
 %                           requires the dataR to be stored somewhere close by
 %         
-%         plotOption:       it can plot in many ways:
-%                             1 Neutrophil intensity in green
-%                             2 Neutrophil intensity in green plus a slice of DIC
-%                             3 Neutrophil intensity in JET2
-%                             4 Neutrophil intensity in JET2 plus a slice of DIC
-%                             5 Neutrophil Labels in JET2
-%                             6 Neutrophil Labels in JET2 plus a slice of DIC
-%                             7 Neutrophil Intensity in green without tracks or DIC
-%                             8 Neutrophil Intensity in green plus DIC without tracks
-%                             9 Neutrophil intensity in green SHORT TRACKS
-%                             10 Neutrophil intensity in green plus
+%         plotOption:       it can plot in many ways, either by a number:
+%                             - 1 Neutrophil intensity in green
+%                             - 2 Neutrophil intensity in green plus a slice of DIC
+%                             - 3 Neutrophil intensity in JET2
+%                             - 4 Neutrophil intensity in JET2 plus a slice of DIC
+%                             - 5 Neutrophil Labels in JET2
+%                             - 6 Neutrophil Labels in JET2 plus a slice of DIC
+%                             - 7 Neutrophil Intensity in green without tracks or DIC
+%                             - 8 Neutrophil Intensity in green plus DIC without tracks
+%                             - 9 Neutrophil intensity in green SHORT TRACKS
+%                             - 10 Neutrophil intensity in green plus
 %                             a slice of DICSHORT TRACKS
-%                             path-to-data
+%                           or a string:
+%                             - path-to-data. '/full/path/to/data/folder'
+%                             with either '.mat' or '.tif' files.
+%                             - Use the string 'folder' to prompt the user 
+%                             to 
+%                             
 %
 %         tracksToPlot:     subset of tracks to plot
 %
