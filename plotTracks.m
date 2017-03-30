@@ -464,6 +464,7 @@ else
                                          'FitHeightToText','on');
 
             end
+            colormap jet;
 
           case 3
             %------- highlights longer (in number of frames) branches
