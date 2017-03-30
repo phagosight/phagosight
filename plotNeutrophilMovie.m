@@ -11,18 +11,24 @@ function plotNeutrophilMovie (handlesDir,plotOption,tracksToPlot,framesToPlot)
 %         handlesDir:       path to where the handles are saved, it also 
 %                           requires the dataR to be stored somewhere close by
 %         
-%         plotOption:       it can plot in many ways:
-%                             1 Neutrophil intensity in green
-%                             2 Neutrophil intensity in green plus a slice of DIC
-%                             3 Neutrophil intensity in JET2
-%                             4 Neutrophil intensity in JET2 plus a slice of DIC
-%                             5 Neutrophil Labels in JET2
-%                             6 Neutrophil Labels in JET2 plus a slice of DIC
-%                             7 Neutrophil Intensity in green without tracks or DIC
-%                             8 Neutrophil Intensity in green plus DIC without tracks
-%                             9 Neutrophil intensity in green SHORT TRACKS
-%                             10 Neutrophil intensity in green plus
+%         plotOption:       it can plot in many ways, either by a number:
+%                             - 1 Neutrophil intensity in green
+%                             - 2 Neutrophil intensity in green plus a slice of DIC
+%                             - 3 Neutrophil intensity in JET2
+%                             - 4 Neutrophil intensity in JET2 plus a slice of DIC
+%                             - 5 Neutrophil Labels in JET2
+%                             - 6 Neutrophil Labels in JET2 plus a slice of DIC
+%                             - 7 Neutrophil Intensity in green without tracks or DIC
+%                             - 8 Neutrophil Intensity in green plus DIC without tracks
+%                             - 9 Neutrophil intensity in green SHORT TRACKS
+%                             - 10 Neutrophil intensity in green plus
 %                             a slice of DICSHORT TRACKS
+%                           or a string:
+%                             - path-to-data. '/full/path/to/data/folder'
+%                             with either '.mat' or '.tif' files.
+%                             - Use the string 'folder' to prompt the user 
+%                             to 
+%                             
 %
 %         tracksToPlot:     subset of tracks to plot
 %
@@ -141,12 +147,23 @@ function plotNeutrophilMovie (handlesDir,plotOption,tracksToPlot,framesToPlot)
     %There are several plotOptions (green, jet, etc.) default is green
     if (~exist('plotOption','var'))
 	    plotOption = 2;
+    elseif ischar(plotOption)
+        if isdir(plotOption)
+            plotDir = plotOption;
+            if strcmp(plotDir,filesep)
+                plotDir(end) = [];
+            end
+        else
+            plotDir = uigetdir(handlesDir,...
+                               ['Select the folder that contains' 32 ...
+                               'the data to be plot alongside the tracks.']);
+        end
+        plotOption = 11;
     elseif (plotOption>10)||(plotOption<1)
 	    disp('PlotOption not valid, Please try again');
 	    F=[];
 	    return;
     end
-
 
     %the original data is in _mat_Re, verify that the other folders are
     %readable
@@ -235,6 +252,8 @@ function plotNeutrophilMovie (handlesDir,plotOption,tracksToPlot,framesToPlot)
     % 5 Neutrophil Labels in JET2
     % 6 Neutrophil Labels in JET2 plus a slice of DIC
     % 7 Neutrophil intensity in green plus a slice of DIC WITHOUT TRACKS
+    % 11 User is allowed to give the folder where images will be plot.
+    %    images are displayed in bone colourmap.
 
     % options 2,4,6 are only possible if there is DIC on top of the
     % fluorescence
@@ -259,8 +278,6 @@ function plotNeutrophilMovie (handlesDir,plotOption,tracksToPlot,framesToPlot)
 	    end
     end
 
-
-
     if handles.ChannelDistribution(1)~=0
 	    gFluorescentSlices = handles.ChannelDistribution(1):...
                 handles.ChannelDistribution(2);
@@ -274,11 +291,25 @@ function plotNeutrophilMovie (handlesDir,plotOption,tracksToPlot,framesToPlot)
 	    rFluorescentSlices = 0;
     end
 
-
+    if plotOption > 10
+        dataDirNew = dir(strcat(plotDir, filesep, '*.mat'));
+        dataDirRaw = dir(strcat(plotDir, filesep, '*.tif'));
+        if isempty(dataDirNew) && ~isempty(dataDirRaw)
+            % there are images on the folder that should be read. 
+            fprintf('%s: reading images into MAT files. \n', mfilename);
+            [dataDirRe, ~] = readNeutrophils(plotDir);
+            original_dataDirRe = dir (strcat(dataDirRe,'/*.mat'));
+        else 
+            dataDirRe = plotDir;
+            original_dataDirRe = dataDirNew;
+        end
+    end
     % FILE WITH the neutrophils and the DIC
     currentData = load(strcat(dataDirRe,'/',original_dataDirRe(1).name));
-    [rows,cols,levs] = size (currentData.dataR);
-    % This is to plot the   neutrophils LABELS only!
+    namefield = fieldnames(currentData); % dataIn or dataR are expected.
+    dataR = double(getfield(currentData, namefield{1}));
+    [rows,cols,levs] = size (dataR);
+    % This is to plot the neutrophils LABELS only!
     currentDataL = load(strcat(dataDirLa,'/',original_dataDirLa(1).name));
 
     switch plotOption
@@ -286,13 +317,13 @@ function plotNeutrophilMovie (handlesDir,plotOption,tracksToPlot,framesToPlot)
 	        % The neutrophils to display are the maximum intensity projection
 	        currFish = zeros (rows,cols,3);
 	        if (gFluorescentSlices(1)~=0)
-	            currNeutrops = (max(currentData.dataR(:,:,gFluorescentSlices),[],3));
+	            currNeutrops = (max(dataR(:,:,gFluorescentSlices),[],3));
 	            % To display them as an image, they are scaled 0-150
 	            currNeutrops =(currNeutrops/max(currNeutrops(:)));
 	            currFish(:,:,2) = round(255*currNeutrops);
 	        end
 	        if (rFluorescentSlices(1)~=0)
-	            currNeutrops = (max(currentData.dataR(:,:,rFluorescentSlices),[],3));
+	            currNeutrops = (max(dataR(:,:,rFluorescentSlices),[],3));
 	            % To display them as an image, they are scaled 0-150
 	            currNeutrops = (currNeutrops/max(currNeutrops(:)));
 	            currFish(:,:,1) = round(255*currNeutrops);
@@ -302,18 +333,18 @@ function plotNeutrophilMovie (handlesDir,plotOption,tracksToPlot,framesToPlot)
 	    case 2
 	        levelP=150;
 	        
-	        topSlice = max(currentData.dataR(:,:,handles.ChannelDistribution(3)),[],3);
+	        topSlice = max(dataR(:,:,handles.ChannelDistribution(3)),[],3);
 	        currFish0 = repmat(255*topSlice/(max(topSlice(:))),[1 1 3]);
 
 	        % To display them as an image, they are scaled 0-150
 	        if (gFluorescentSlices(1)~=0)
-	            currNeutrops = (max(currentData.dataR(:,:,gFluorescentSlices),[],3));
+	            currNeutrops = (max(dataR(:,:,gFluorescentSlices),[],3));
 	            % To display them as an image, they are scaled 0-150
 	            currNeutrops = (currNeutrops/max(currNeutrops(:)));
 	            currFish0(:,:,2) = currFish0(:,:,2)+round(255*currNeutrops);
 	        end
 	        if (rFluorescentSlices(1)~=0)
-	            currNeutrops = (max(currentData.dataR(:,:,rFluorescentSlices),[],3));
+	            currNeutrops = (max(dataR(:,:,rFluorescentSlices),[],3));
 	            % To display them as an image, they are scaled 0-150
 	            currNeutrops = (currNeutrops/max(currNeutrops(:)));
 	            currFish0(:,:,1) = currFish0(:,:,1)+round(255*currNeutrops);
@@ -328,13 +359,13 @@ function plotNeutrophilMovie (handlesDir,plotOption,tracksToPlot,framesToPlot)
 
 	        % The neutrophils to display are the maximum intensity projection
 	        if(gFluorescentSlices(1)~=0)&&(rFluorescentSlices(1)~=0)
-	            currNeutrops = (max(currentData.dataR(:,:,[gFluorescentSlices ...
+	            currNeutrops = (max(dataR(:,:,[gFluorescentSlices ...
                                         rFluorescentSlices]),[],3));
                     
 	        elseif (gFluorescentSlices(1)~=0)&&(rFluorescentSlices(1)==0)
-	            currNeutrops = (max(currentData.dataR(:,:,[gFluorescentSlices]),[],3));
+	            currNeutrops = (max(dataR(:,:,[gFluorescentSlices]),[],3));
 	        elseif (gFluorescentSlices(1)==0)&&(rFluorescentSlices(1)~=0)
-	             currNeutrops = (max(currentData.dataR(:,:,[rFluorescentSlices]),[],3));
+	             currNeutrops = (max(dataR(:,:,[rFluorescentSlices]),[],3));
 	        end
 	        currNeutrops = (currNeutrops/max(currNeutrops(:)));
 	        % To display them as an image, they are scaled 0-64
@@ -347,16 +378,16 @@ function plotNeutrophilMovie (handlesDir,plotOption,tracksToPlot,framesToPlot)
 	    case 4
 	        levelP = 64;
 
-	        topSlice = max(currentData.dataR(:,:,handles.ChannelDistribution(3)),[],3);
+	        topSlice = max(dataR(:,:,handles.ChannelDistribution(3)),[],3);
 	        
 	        % The neutrophils to display are the maximum intensity projection
 	        if(gFluorescentSlices(1)~=0)&&(rFluorescentSlices(1)~=0)
-	            currNeutrops = (max(currentData.dataR(:,:,[gFluorescentSlices ...
+	            currNeutrops = (max(dataR(:,:,[gFluorescentSlices ...
                                         rFluorescentSlices]),[],3));
 	        elseif (gFluorescentSlices(1)~=0)&&(rFluorescentSlices(1)==0)
-	            currNeutrops = (max(currentData.dataR(:,:,gFluorescentSlices),[],3));
+	            currNeutrops = (max(dataR(:,:,gFluorescentSlices),[],3));
 	        elseif (gFluorescentSlices(1)==0)&&(rFluorescentSlices(1)~=0)
-	             currNeutrops = (max(currentData.dataR(:,:,rFluorescentSlices),[],3));
+	             currNeutrops = (max(dataR(:,:,rFluorescentSlices),[],3));
 	        end
 	        % To display them as an image, they are scaled 0-64
 	        currNeutrops = round(levelP*(currNeutrops/max(currNeutrops(:))));
@@ -415,7 +446,7 @@ function plotNeutrophilMovie (handlesDir,plotOption,tracksToPlot,framesToPlot)
                         jet3(k,3)*(currNeutrops==k);
 	        end
 	        
-	        topSlice = currentData.dataR(:,:,handles.ChannelDistribution(3));
+	        topSlice = dataR(:,:,handles.ChannelDistribution(3));
 	        currFish0 = repmat(255*topSlice/(max(topSlice(:))),[1 1 3]);
 	        currFish = currFish0.*(currNeutropsJ==0)+255*currNeutropsJ;
 	        
@@ -432,14 +463,14 @@ function plotNeutrophilMovie (handlesDir,plotOption,tracksToPlot,framesToPlot)
 	        % To display them as an image, they are scaled 0-150
 	        if(gFluorescentSlices(1)~=0)
 	            currNeutrops = (max(...
-                        currentData.dataR(:,:,gFluorescentSlices),[],3));
+                        dataR(:,:,gFluorescentSlices),[],3));
 	            % To display them as an image, they are scaled 0-150
 	            currNeutrops = (currNeutrops/max(currNeutrops(:)));
 	            currFish0(:,:,2) = currFish0(:,:,2)+round(255*currNeutrops);
 	        end
 	        if (rFluorescentSlices(1)~=0)
 	            currNeutrops = (max(...
-                        currentData.dataR(:,:,rFluorescentSlices),[],3));
+                        dataR(:,:,rFluorescentSlices),[],3));
 	            % To display them as an image, they are scaled 0-150
 	            currNeutrops = (currNeutrops/max(currNeutrops(:)));
 	            currFish0(:,:,1) = currFish0(:,:,1)+round(255*currNeutrops);
@@ -457,7 +488,7 @@ function plotNeutrophilMovie (handlesDir,plotOption,tracksToPlot,framesToPlot)
 	        
 	        if handles.ChannelDistribution(3)~=0
 	            topGreySlice = handles.ChannelDistribution(3); 
-	            topSlice = max(currentData.dataR(:,:,topGreySlice),[],3);
+	            topSlice = max(dataR(:,:,topGreySlice),[],3);
 	            currFish0 = repmat(255*topSlice/(max(topSlice(:))),[1 1 3]);
 	        else
 	            currFish0 = zeros(rows,cols,3);
@@ -466,15 +497,13 @@ function plotNeutrophilMovie (handlesDir,plotOption,tracksToPlot,framesToPlot)
 	        
 	        % To display them as an image, they are scaled 0-150
 	        if (gFluorescentSlices(1)~=0)
-	            currNeutrops = (max(...
-                        currentData.dataR(:,:,gFluorescentSlices),[],3));
+	            currNeutrops = (max(dataR(:,:,gFluorescentSlices),[],3));
 	            % To display them as an image, they are scaled 0-150
 	            currNeutrops = (currNeutrops/max(currNeutrops(:)));
 	            currFish0(:,:,2) = currFish0(:,:,2)+round(255*currNeutrops);
 	        end
 	        if (rFluorescentSlices(1)~=0)
-	            currNeutrops = (max(...
-                        currentData.dataR(:,:,rFluorescentSlices),[],3));
+	            currNeutrops = (max(dataR(:,:,rFluorescentSlices),[],3));
 	            % To display them as an image, they are scaled 0-150
 	            currNeutrops = (currNeutrops/max(currNeutrops(:)));
 	            currFish0(:,:,1) = currFish0(:,:,1)+round(255*currNeutrops);
@@ -489,15 +518,13 @@ function plotNeutrophilMovie (handlesDir,plotOption,tracksToPlot,framesToPlot)
 	        % The neutrophils to display are the maximum intensity projection
 	        currFish = zeros (rows,cols,3);
 	        if (gFluorescentSlices(1)~=0)
-	            currNeutrops = (max(...
-                        currentData.dataR(:,:,gFluorescentSlices),[],3));
+	            currNeutrops = (max(dataR(:,:,gFluorescentSlices),[],3));
 	            % To display them as an image, they are scaled 0-150
 	            currNeutrops = (currNeutrops/max(currNeutrops(:)));
 	            currFish(:,:,2) = round(255*currNeutrops);
 	        end
 	        if (rFluorescentSlices(1)~=0)
-	            currNeutrops = (max(...
-                        currentData.dataR(:,:,rFluorescentSlices),[],3));
+	            currNeutrops = (max(dataR(:,:,rFluorescentSlices),[],3));
 	            % To display them as an image, they are scaled 0-150
 	            currNeutrops = (currNeutrops/max(currNeutrops(:)));
 	            currFish(:,:,1) = round(255*currNeutrops);
@@ -507,21 +534,18 @@ function plotNeutrophilMovie (handlesDir,plotOption,tracksToPlot,framesToPlot)
 	    case 10
 	        levelP = 150;
 	        
-	        topSlice = max(...
-                    currentData.dataR(:,:,handles.ChannelDistribution(3)),[],3);
+	        topSlice = max(dataR(:,:,handles.ChannelDistribution(3)),[],3);
 	        currFish0 = repmat(255*topSlice/(max(topSlice(:))),[1 1 3]);
 
 	        % To display them as an image, they are scaled 0-150
 	        if (gFluorescentSlices(1)~=0)
-	            currNeutrops = (max(...
-                        currentData.dataR(:,:,gFluorescentSlices),[],3));
+	            currNeutrops = (max(dataR(:,:,gFluorescentSlices),[],3));
 	            % To display them as an image, they are scaled 0-150
 	            currNeutrops = (currNeutrops/max(currNeutrops(:)));
 	            currFish0(:,:,2) = currFish0(:,:,2)+round(255*currNeutrops);
 	        end
 	        if (rFluorescentSlices(1)~=0)
-	            currNeutrops = (max(...
-                        currentData.dataR(:,:,rFluorescentSlices),[],3));
+	            currNeutrops = (max(dataR(:,:,rFluorescentSlices),[],3));
 	            % To display them as an image, they are scaled 0-150
 	            currNeutrops = (currNeutrops/max(currNeutrops(:)));
 	            currFish0(:,:,1) = currFish0(:,:,1)+round(255*currNeutrops);
@@ -530,6 +554,15 @@ function plotNeutrophilMovie (handlesDir,plotOption,tracksToPlot,framesToPlot)
 	        currFish = currFish0-min(currFish0(:));
 	        currFish = round(255*currFish/max(currFish(:)));
 	        hSurf = imagesc(currFish/255);
+        case 11
+            if levs == 3
+                currFish = dataR;
+            else
+                currFish = max(dataR,[],3);
+            end
+	        hSurf = imagesc(currFish/255);
+            colormap bone;
+
     end 
 
     %%
@@ -558,10 +591,10 @@ function plotNeutrophilMovie (handlesDir,plotOption,tracksToPlot,framesToPlot)
     F(stopFrame-initFrame+1) = getframe;
     movieData{stopFrame-initFrame+1}(rows,cols,3) = 0;
     for counterF=initFrame:stopFrame
-	    if plotOption < 7
+	    if plotOption < 7 || plotOption == 11
 	        for counterTrack=tracksToPlot
                 %check that the track has not finished (keep linked tracks)
-                if ((initTracks(counterTrack)<=counterF) &...
+                if ((initTracks(counterTrack)<=counterF) &&...
                     (finTracks(counterTrack)>=counterF ))
                     set(hLine(counterTrack),'visible','on');
                 else
@@ -598,9 +631,9 @@ function plotNeutrophilMovie (handlesDir,plotOption,tracksToPlot,framesToPlot)
                 %currentTrackFrames(currentTrackFrames>maxFrame) =[];
                 %framesOfTrackToPlot = (currentTrackFrames);
                 framesOfTrackToPlot = (minFrame:maxFrame);
-                set(hLine(counterTrack),'Xdata',...
-                                  YY{counterTrack}(framesOfTrackToPlot),'Ydata',...
-                                  XX{counterTrack}(framesOfTrackToPlot));
+                set(hLine(counterTrack),...
+                    'Xdata',YY{counterTrack}(framesOfTrackToPlot),...
+                    'Ydata',XX{counterTrack}(framesOfTrackToPlot));
                 if counterF==22
                     qq=1;
                 end
@@ -615,36 +648,39 @@ function plotNeutrophilMovie (handlesDir,plotOption,tracksToPlot,framesToPlot)
 	
 	    currentData = load(strcat(dataDirRe,'/',original_dataDirRe(counterF).name));
 	    currentDataL = load(strcat(dataDirLa,'/',original_dataDirLa(counterF).name));
+        
+        namefield = fieldnames(currentData); % dataIn or dataR are expected.
+        dataR = double(getfield(currentData, namefield{1}));
 	    switch plotOption
 	        case 1
 	            currFish = zeros (rows,cols,3);
 	            if (gFluorescentSlices(1)~=0)
-	                currNeutrops = (max(currentData.dataR(:,:,gFluorescentSlices),[],3));
+	                currNeutrops = (max(dataR(:,:,gFluorescentSlices),[],3));
 	                % To display them as an image, they are scaled 0-150
 	                currNeutrops = (currNeutrops/max(currNeutrops(:)));
 	                currFish(:,:,2) = round(255*currNeutrops);
 	            end
 	            if (rFluorescentSlices(1)~=0)
-	                currNeutrops = (max(currentData.dataR(:,:,rFluorescentSlices),[],3));
+	                currNeutrops = (max(dataR(:,:,rFluorescentSlices),[],3));
 	                % To display them as an image, they are scaled 0-150
 	                currNeutrops = (currNeutrops/max(currNeutrops(:)));
 	                currFish(:,:,1) = round(255*currNeutrops);
 	            end
 	            
 	        case 2
-	            topSlice = max(currentData.dataR(:,:,handles.ChannelDistribution(3)),...
+	            topSlice = max(dataR(:,:,handles.ChannelDistribution(3)),...
                                    [],3);
 	            currFish0 = repmat(255*topSlice/(max(topSlice(:))),[1 1 3]);
 	            
 	            % To display them as an image, they are scaled 0-150
 	            if (gFluorescentSlices(1)~=0)
-	                currNeutrops = (max(currentData.dataR(:,:,gFluorescentSlices),[],3));
+	                currNeutrops = (max(dataR(:,:,gFluorescentSlices),[],3));
 	                % To display them as an image, they are scaled 0-150
 	                currNeutrops = (currNeutrops/max(currNeutrops(:)));
 	                currFish0(:,:,2) = currFish0(:,:,2)+round(255*currNeutrops);
 	            end
 	            if (rFluorescentSlices(1)~=0)
-	                currNeutrops = (max(currentData.dataR(:,:,rFluorescentSlices),[],3));
+	                currNeutrops = (max(dataR(:,:,rFluorescentSlices),[],3));
 	                % To display them as an image, they are scaled 0-150
 	                currNeutrops = (currNeutrops/max(currNeutrops(:)));
 	                currFish0(:,:,1) = currFish0(:,:,1)+round(255*currNeutrops);
@@ -657,31 +693,26 @@ function plotNeutrophilMovie (handlesDir,plotOption,tracksToPlot,framesToPlot)
 	            % The neutrophils to display are the maximum intensity projection
 	            if(gFluorescentSlices(1)~=0)&&(rFluorescentSlices(1)~=0)
 	                currNeutrops = (max(...
-                            currentData.dataR(:,:,...
-                                              [gFluorescentSlices rFluorescentSlices]),[],3));
+                        dataR(:,:,[gFluorescentSlices rFluorescentSlices]),[],3));
 	            elseif (gFluorescentSlices(1)~=0)&&(rFluorescentSlices(1)==0)
-	                currNeutrops = (max(...
-                            currentData.dataR(:,:,[gFluorescentSlices]),[],3));
+	                currNeutrops = (max(dataR(:,:,[gFluorescentSlices]),[],3));
 	            elseif (gFluorescentSlices(1)==0)&&(rFluorescentSlices(1)~=0)
-	                currNeutrops = (max(...
-                            currentData.dataR(:,:,[rFluorescentSlices]),[],3));
+	                currNeutrops = (max(dataR(:,:,[rFluorescentSlices]),[],3));
 	            end
 	            
 	            % To display them as an image, they are scaled 0-64
 	            currNeutrops = round(255*(currNeutrops/max(currNeutrops(:))));
 	            currFish = currNeutrops;
 	        case 4
-	            topSlice = max(...
-                        currentData.dataR(:,:,handles.ChannelDistribution(3)),[],3);
+	            topSlice = max(dataR(:,:,handles.ChannelDistribution(3)),[],3);
 	            % The neutrophils to display are the maximum intensity projection
 	            if(gFluorescentSlices(1)~=0)&&(rFluorescentSlices(1)~=0)
 	                currNeutrops = (max(...
-                            currentData.dataR(:,:,...
-                                              [gFluorescentSlices rFluorescentSlices]),[],3));
+                        dataR(:,:,[gFluorescentSlices rFluorescentSlices]),[],3));
 	            elseif (gFluorescentSlices(1)~=0)&&(rFluorescentSlices(1)==0)
-	                currNeutrops = (max(currentData.dataR(:,:,gFluorescentSlices),[],3));
+	                currNeutrops = (max(dataR(:,:,gFluorescentSlices),[],3));
 	            elseif (gFluorescentSlices(1)==0)&&(rFluorescentSlices(1)~=0)
-	                currNeutrops = (max(currentData.dataR(:,:,rFluorescentSlices),[],3));
+	                currNeutrops = (max(dataR(:,:,rFluorescentSlices),[],3));
 	            end
 	            
 	            % To display them as an image, they are scaled 0-64
@@ -741,7 +772,7 @@ function plotNeutrophilMovie (handlesDir,plotOption,tracksToPlot,framesToPlot)
 	                currNeutropsJ(:,:,3) = currNeutropsJ(:,:,3)+...
                             jet3(k,3)*(currNeutrops3==k);
 	            end
-	            topSlice = currentData.dataR(:,:,handles.ChannelDistribution(3));
+	            topSlice = dataR(:,:,handles.ChannelDistribution(3));
 	            currFish0 = repmat(255*(topSlice.*(currNeutrops3==0))/...
                                        (max(topSlice(:))),[1 1 3]);
 	            currFish = currFish0+255*currNeutropsJ;
@@ -749,15 +780,13 @@ function plotNeutrophilMovie (handlesDir,plotOption,tracksToPlot,framesToPlot)
 	            currFish0 = zeros(rows,cols,3);
 	            
 	            if (gFluorescentSlices(1)~=0)
-	                currNeutrops = (max(...
-                            currentData.dataR(:,:,gFluorescentSlices),[],3));
+	                currNeutrops = (max(dataR(:,:,gFluorescentSlices),[],3));
 	                % To display them as an image, they are scaled 0-150
 	                currNeutrops = (currNeutrops/max(currNeutrops(:)));
 	                currFish0(:,:,2) = currFish0(:,:,2)+round(255*currNeutrops);
 	            end
 	            if (rFluorescentSlices(1)~=0)
-	                currNeutrops = (max(...
-                            currentData.dataR(:,:,rFluorescentSlices),[],3));
+	                currNeutrops = (max(dataR(:,:,rFluorescentSlices),[],3));
 	                % To display them as an image, they are scaled 0-150
 	                currNeutrops = (currNeutrops/max(currNeutrops(:)));
 	                currFish0(:,:,1) = currFish0(:,:,1)+round(255*currNeutrops);
@@ -770,24 +799,20 @@ function plotNeutrophilMovie (handlesDir,plotOption,tracksToPlot,framesToPlot)
 	            
 	            if handles.ChannelDistribution(3)~=0
 	                topGreySlice = handles.ChannelDistribution(3);
-	                topSlice = max(...
-                            currentData.dataR(:,:,handles.ChannelDistribution(3)),...
-                            [],3);
+	                topSlice = max(dataR(:,:,handles.ChannelDistribution(3)),[],3);
 	                currFish0 = repmat(255*topSlice/(max(topSlice(:))),[1 1 3]);
 	            else
 	                currFish0 = zeros(rows,cols,3);
 	            end
 	            
 	            if (gFluorescentSlices(1)~=0)
-	                currNeutrops = (max(...
-                            currentData.dataR(:,:,gFluorescentSlices),[],3));
+	                currNeutrops = (max(dataR(:,:,gFluorescentSlices),[],3));
 	                % To display them as an image, they are scaled 0-150
 	                currNeutrops = (currNeutrops/max(currNeutrops(:)));
 	                currFish0(:,:,2) = currFish0(:,:,2)+round(255*currNeutrops);
 	            end
 	            if (rFluorescentSlices(1)~=0)
-	                currNeutrops = (max(...
-                            currentData.dataR(:,:,rFluorescentSlices),[],3));
+	                currNeutrops = (max(dataR(:,:,rFluorescentSlices),[],3));
 	                % To display them as an image, they are scaled 0-150
 	                currNeutrops = (currNeutrops/max(currNeutrops(:)));
 	                currFish0(:,:,1) = currFish0(:,:,1)+round(255*currNeutrops);
@@ -801,42 +826,42 @@ function plotNeutrophilMovie (handlesDir,plotOption,tracksToPlot,framesToPlot)
 	        case 9
 	            currFish = zeros (rows,cols,3);
 	            if (gFluorescentSlices(1)~=0)
-	                currNeutrops = (max(...
-                            currentData.dataR(:,:,gFluorescentSlices),[],3));
+	                currNeutrops = (max(dataR(:,:,gFluorescentSlices),[],3));
 	                % To display them as an image, they are scaled 0-150
 	                currNeutrops = (currNeutrops/max(currNeutrops(:)));
 	                currFish(:,:,2) = round(255*currNeutrops);
 	            end
 	            if (rFluorescentSlices(1)~=0)
-	                currNeutrops = (max(...
-                            currentData.dataR(:,:,rFluorescentSlices),[],3));
+	                currNeutrops = (max(dataR(:,:,rFluorescentSlices),[],3));
 	                % To display them as an image, they are scaled 0-150
 	                currNeutrops = (currNeutrops/max(currNeutrops(:)));
 	                currFish(:,:,1) = round(255*currNeutrops);
                 end
               case 10                
-                topSlice = max(...
-                    currentData.dataR(:,:,handles.ChannelDistribution(3)),[],3);
+                topSlice = max(dataR(:,:,handles.ChannelDistribution(3)),[],3);
                 currFish0 = repmat(255*topSlice/(max(topSlice(:))),[1 1 3]);
                 
                 % To display them as an image, they are scaled 0-150
                 if (gFluorescentSlices(1)~=0)
-                    currNeutrops = (max(...
-                        currentData.dataR(:,:,gFluorescentSlices),[],3));
+                    currNeutrops = (max(dataR(:,:,gFluorescentSlices),[],3));
                     % To display them as an image, they are scaled 0-150
                     currNeutrops = (currNeutrops/max(currNeutrops(:)));
                     currFish0(:,:,2) = currFish0(:,:,2)+round(255*currNeutrops);
                 end
                 if (rFluorescentSlices(1)~=0)
-                    currNeutrops = (max(...
-                        currentData.dataR(:,:,rFluorescentSlices),[],3));
+                    currNeutrops = (max(dataR(:,:,rFluorescentSlices),[],3));
                     % To display them as an image, they are scaled 0-150
                     currNeutrops = (currNeutrops/max(currNeutrops(:)));
                     currFish0(:,:,1) = currFish0(:,:,1)+round(255*currNeutrops);
                 end
                 currFish = currFish0-min(currFish0(:));
-                currFish = round(255*currFish/max(currFish(:)));      	            
-	            
+                currFish = round(255*currFish/max(currFish(:)));   
+            case 11 
+                if levs == 3
+                    currFish = dataR;
+                else
+                    currFish = max(dataR,[],3);
+                end
 	    end
 	
 	    set(hSurf,'CData',currFish/255);
