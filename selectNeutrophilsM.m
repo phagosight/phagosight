@@ -83,10 +83,19 @@ function selectNeutrophilsM(arg,handles,woundRegion)
 
     uistate = uiclearmode(fig);
     [tool, htext] = createUI;
-    hmarker1 = line('marker','o','markersize',10,'markerfacecolor',...
-                    'k','erasemode','xor','visible','off');
-    hmarker2 = line('marker','o','markersize',10,'markerfacecolor',...
-                    'r','erasemode','xor','visible','off');
+    
+    v=ver('matlab');
+    if str2num(v.Release(3:6)) < 2014
+        hmarker1 = line('marker','o','markersize',10,'markerfacecolor',...
+            'k','erasemode','xor','visible','off');
+        hmarker2 = line('marker','o','markersize',10,'markerfacecolor',...
+            'r','erasemode','xor','visible','off');
+    else
+        hmarker1 = line('marker','o','markersize',10,'markerfacecolor',...
+            'k','visible','off');
+        hmarker2 = line('marker','o','markersize',10,'markerfacecolor',...
+            'r','visible','off');
+    end
 
     state.uistate = uistate;
     state.text = htext;
