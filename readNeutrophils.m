@@ -1,6 +1,6 @@
-function [dataIn,handles]=readNeutrophils(dataInName)
-%function [dataIn,handles]=readNeutrophils()
-%function [dataIn,handles]=readNeutrophils(dataInName)
+function [dataIn,handles,channelDistribution]=readNeutrophils(dataInName)
+%function [dataIn,handles,channelDistribution]=readNeutrophils()
+%function [dataIn,handles,channelDistribution]=readNeutrophils(dataInName)
 %
 %--------------------------------------------------------------------------
 % readNeutrophils   displays menu for user to select data folder or read
@@ -10,8 +10,10 @@ function [dataIn,handles]=readNeutrophils(dataInName)
 %                       data, reduced data or labelled data.
 %
 %       OUTPUT
-%         dataIn:       3-D matrix data from the first frame.
-%         handles:      handles struct containing number of time frames
+%         dataIn:               3-D matrix data from the first frame.
+%         handles:              handles struct containing number of time frames
+%         channelDistribution   Distribution, especially for data sets with
+%                               more than 2 fluorescent channels.
 %
 %--------------------------------------------------------------------------
 %
@@ -191,8 +193,11 @@ switch nargin
                     dataOutFolder = strcat(dataInName(1:end-4),'_mat_Or',filesep);
                     mkdir(dataOutFolder)
                     dataOutName0  = 'T0000';
-                    
-                    avi_Props = mmreader(dataInName);
+                    try
+                        avi_Props = mmreader(dataInName);
+                    catch
+                        avi_Props = VideoReader(dataInName);
+                    end
                     handles.numFrames = avi_Props.NumberOfFrames;
                     disp('Read AVI movie and save as matlab data in folders')
                     
@@ -273,9 +278,12 @@ switch nargin
                 %------------ test for folders with files ------------------------
                 % dataInName is neither MAT nor AVI file, should be a
                 % folder with
-                % a)matlab files
-                % b)tiff files or
+                % a) matlab files
+                % b) tiff files or
                 % c) folders
+                
+                
+                
                 %To FIX Bug when path of tiff folder finish with
                 %the file separator ('/' or '\')
                 if (dataInName(end) ~= filesep)
@@ -298,70 +306,137 @@ switch nargin
                         %    dir1                    = dir1(3:end);
                         dir1 = dir1(2:end);
                     end
-                    handles.numFrames = size(dir1,1);
-                    
-                    %
+
+                    % Create the folder where the data will be stored
                     disp('Read data from folders and save as matlab data in folders')
                     dataOutName = strcat(dataInName(1:end-1),'_mat_Or');
                     dataOutFolder = strcat(dataInName(1:end-1),'_mat_Or',filesep);
                     mkdir(dataOutName)
-                    for counterFrames=1:handles.numFrames
-                        tempDir=dir1(counterFrames).name;
-                        dataInName1 = strcat(dataInName,tempDir);
-                        dataOutName =...
-                            strcat(dataOutName0(1:end-floor(log10(counterFrames))),...
-                            num2str(counterFrames));
-                        dataOutName1 = strcat(dataOutFolder,dataOutName);
+                    
+
+                    % Calculate the number of files in the folder,
+                    % this number is not necessarily the same as the time Frames
+                    numFiles = size(dir1,1);
+                    
+                    %%%%% check if the name is something like
+                    %%%%% TOOOO1C01Z001 to assign structure to the handles if it is
+                    %%%%% NOT, then assign one file per time frame
+                    %% identical positions of first and last files
+                    CommonNameElements      = dir1(1).name==dir1(end).name;
+                    DifferentNameLocations  = find(1-CommonNameElements);
+                    %% Positions of T, C, Z
+                    FindT                   = strfind(dir1(1).name,'T');
+                    FindC                   = strfind(dir1(1).name,'C');
+                    FindZ                   = strfind(dir1(1).name,'Z');
+                    %%
+                    
+                    if ~(isempty(FindT)&&isempty(FindC)&&isempty(FindZ))
+                        % if there are values for at least C and Z then read in cycles
+                        LocationsForZ           = (DifferentNameLocations>FindZ);
+                        LocationsForC           = (DifferentNameLocations<FindZ)&(DifferentNameLocations>FindC);
+                        LocationsForT           = (DifferentNameLocations<FindC);
+                        maxValZ                 = str2double(dir1(end).name(DifferentNameLocations(LocationsForZ)));
+                        maxValC                 = str2double(dir1(end).name(DifferentNameLocations(LocationsForC)));
+                        maxValT                 = str2double(dir1(end).name(DifferentNameLocations(LocationsForT)));
+                        minValZ                 = str2double(dir1(1).name(DifferentNameLocations(LocationsForZ)));
+                        minValC                 = str2double(dir1(1).name(DifferentNameLocations(LocationsForC)));
+                        minValT                 = str2double(dir1(1).name(DifferentNameLocations(LocationsForT)));
                         
-                        %check if is folders in folders
-                        if (dir1(end).isdir)
-                            % a series of folders inside the original folder
+                        if isnan(maxValT)
+                            maxValT  = 0;
+                            minValT  = 0;
+                        end
+                        if isnan(maxValC)
+                            maxValC = 0;
+                            minValC = 0;
+                        end
+                        
+                        
+                        %%
+                        %dataIn                      = zeros
+                        handles.numFrames           = maxValT+1;
+                        channelDistribution         = [];
+                        for counterFrames           = minValT:maxValT
+                            currentSlice            = 0;
                             
-                            if (dataInName1(end) ~= filesep)
-                                dataInName1 = strcat(dataInName1,filesep);
+                            dataOutName =strcat(dataOutName0(1:end-floor(log10(counterFrames+1))),num2str(counterFrames+1));
+                            dataOutName1 = strcat(dataOutFolder,dataOutName);
+                            
+                            for counterChannels     = minValC:maxValC
+                                channelDistribution=[channelDistribution currentSlice+1 ];
+                                for counterZ        = minValZ:maxValZ
+                                    currentSlice    = currentSlice +1;
+                                    %currentSlice    = (counterZ+1) + maxValZ*counterChannels;
+                                    
+                                    dataInName1 = strcat(dataInName,dir1(currentSlice).name);
+                                    
+                                    dataIn(:,:,currentSlice) = imread(dataInName1);
+                                    %disp([counterFrames counterChannels counterZ currentSlice])
+                                    
+                                end
+                                channelDistribution=[channelDistribution currentSlice ];
                             end
-                            %%% CHECK THIS PART
-                            % restrict to tiff files for the time being
-                            % There must be several slices in the folder,
-                            % each should be 2D
-                            dir2 = dir(strcat(dataInName1,filesep,'T*.tif'));
-                            numSlices = size(dir2,1);
-                            for counterSlice=1:numSlices
-                                tempDir2 = dir2(counterSlice).name;
-                                dataInName2 = strcat(dataInName1,tempDir2);
-                                
-                                dataIn(:,:,counterSlice) = imread(dataInName2);
-                            end
+                            % Save every time Frame
                             %----- the images read are saved to a file HERE ------
                             save(dataOutName1,'dataIn');
                             %-----------------------------------------------------
-                            
-                            %%%%% check if the name is something like
-                            %%%%% TOOOO1C01Z001 to assign structure to the handles
-                            
-                        else
-                            % a series of files inside the original folder
-                            
-                            if strcmp(tempDir(end-2:end),'mat')
-                                dataIn = load(dataInName1);
-                                
-                            else
-                                numImages = size(imfinfo(dataInName1),1);
-                                if  numImages>1
-                                    
-                                    for counterImages =1:numImages
-                                        dataIn(:,:,counterImages) = ...
-                                            imread(dataInName1,counterImages);
-                                    end
-                                else
-                                    dataIn = imread(dataInName1);
-                                end
-                            end
-                            %----- the images read are saved to a file HERE ------
-                            save(dataOutName1,'dataIn');
-                            
                         end
+                        %handles.ChannelDistribution = channelDistribution;
+                        %%
+                    else
+                        % There was no structure detected, read sequentially
+                        handles.numFrames = numFiles;
+                        for counterFrames=1:handles.numFrames
+                            tempDir=dir1(counterFrames).name;
+                            dataInName1 = strcat(dataInName,tempDir);
+                            dataOutName =...
+                                strcat(dataOutName0(1:end-floor(log10(counterFrames))),...
+                                num2str(counterFrames));
+                            dataOutName1 = strcat(dataOutFolder,dataOutName);
+                            
+                            %check if is folders in folders
+                            if (dir1(end).isdir)
+                                % a series of folders inside the original folder
+                                
+                                if (dataInName1(end) ~= filesep)
+                                    dataInName1 = strcat(dataInName1,filesep);
+                                end
+                                %%% CHECK THIS PART
+                                % restrict to tiff files for the time being
+                                % There must be several slices in the folder,
+                                % each should be 2D
+                                dir2 = dir(strcat(dataInName1,filesep,'T*.tif'));
+                                numSlices = size(dir2,1);
+                                for counterSlice=1:numSlices
+                                    tempDir2 = dir2(counterSlice).name;
+                                    dataInName2 = strcat(dataInName1,tempDir2);
+                                    dataIn(:,:,counterSlice) = imread(dataInName2);
+                                end
+                                %----- the images read are saved to a file HERE ------
+                                save(dataOutName1,'dataIn');
+                                %-----------------------------------------------------
+                            else
+                                % a series of files inside the original folder
+                                if strcmp(tempDir(end-2:end),'mat')
+                                    dataIn = load(dataInName1);
+                                else
+                                    numImages = size(imfinfo(dataInName1),1);
+                                    if  numImages>1
+                                        for counterImages =1:numImages
+                                            dataIn(:,:,counterImages) = ...
+                                                imread(dataInName1,counterImages);
+                                        end
+                                    else
+                                        dataIn = imread(dataInName1);
+                                    end
+                                end
+                                %----- the images read are saved to a file HERE ------
+                                save(dataOutName1,'dataIn');
+                            end
+                        end
+                        
                     end
+                    
                 end
             end          
             dataIn = dataOutFolder;
