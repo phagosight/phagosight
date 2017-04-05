@@ -1,8 +1,8 @@
 function plotTracksAndFrame(handles, whichFrame, winsize, options)
-% plotTracksAndFrame. Plots the with PLOTTRACKS function around a
+% plotTracksAndFrame. Plots the with plotTracks function around a
 % frame(whichFrame) and zoomed in to the time axis (z-axis) in a window
 % determined by (winsize). The options can be set to determine the
-% parameter typeOfPlot of function PLOTTRACKS, as well as the minimum 
+% parameter typeOfPlot of function plotTracks, as well as the minimum 
 % number of hops (numHops) necessary to plot the track or the type of data
 % that will be displayed ('La' or 'Re').
 % 
@@ -36,7 +36,7 @@ function plotTracksAndFrame(handles, whichFrame, winsize, options)
 %                   typeOfData : 'La', 'Re' or 'none' to determine which
 %                       frame will be placed alongside the tracks.
 %               
-% see also PLOTTRAACKS
+% see also plotTracks
 % 
 
 if ~isdir(handles.dataLa)

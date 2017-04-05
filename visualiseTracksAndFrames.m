@@ -14,11 +14,11 @@ function visualiseTracksAndFrames(handles)
 %                   dataLa      : string with path to Labelled data (mat_La)
 %               
 %               
-% see also PLOTTRAACKS, PLOTTRACKSANDFRAME
+% see also plotTracks, PLOTTRACKSANDFRAME
 % 
 
 if nargin < 1
-    fprintf('%s: ');
+    fprintf('%s: No handles structure specified. Loading GUI.\n', mfilename);
     [filename, pathname] = uigetfile({'*.mat';'*.*'}, ...
         'Select your handles.mat file');
     load(fullfile(pathname, filename));
