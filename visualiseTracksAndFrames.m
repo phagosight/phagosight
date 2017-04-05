@@ -2,20 +2,20 @@ function visualiseTracksAndFrames(handles)
 % visualiseTracksAndFrames. Tool to dynamically visualise the tracks from
 % structure handles, that allows the user to change the parameters of
 % plotTracksAndFrame in the same GUI.
-% 
-% USAGE: 
+%
+% USAGE:
 %       visualiseTracksAndFrames(handles)
-% 
+%
 % INPUT:
 %               handles := structure containing
 %                   nodeNetwork : [numRBC detected x 12 params]
 %                   finalNetwork: either 1 track or [depth of tracks x numTracks]
 %                   dataRe      : string with path to Reduced data (mat_Re)
 %                   dataLa      : string with path to Labelled data (mat_La)
-%               
-%               
+%
+%
 % see also plotTracks, PLOTTRACKSANDFRAME
-% 
+%
 
 if nargin < 1
     fprintf('%s: No handles structure specified. Loading GUI.\n', mfilename);
