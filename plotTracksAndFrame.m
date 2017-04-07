@@ -50,9 +50,9 @@ if nargin<4
     numHops = 50;
 elseif nargin<3
     winsize = 10;
-    [typeOfPlot, typeOfData, numHops] = getOptions(options);
+    [typeOfPlot, typeOfData, numHops] = getOptions(options, mfilename);
 else
-    [typeOfPlot, typeOfData, numHops] = getOptions(options);
+    [typeOfPlot, typeOfData, numHops] = getOptions(options, mfilename);
 end
 
 switch typeOfData
@@ -95,9 +95,9 @@ if isempty(typeOfPlot)
         32, num2str(whichFrame), 32, 'Windows size =', 32, ...
         num2str(winsize));
     title(titlestr);
-    plotTracks(handles, 11, find(handles.distanceNetwork.numHops>numHops));
+    plotTracks(handles, 11, find(handles.distanceNetwork.numHops>=numHops));
     hold on;
-    plotTracks(handles, 12, find(handles.distanceNetwork.numHops<=numHops));
+    plotTracks(handles, 12, find(handles.distanceNetwork.numHops<numHops));
     if ~strcmp(typeOfData, 'none')
         surface(xx,yy,zz,X, 'FaceColor', 'texturemap', ...
             'EdgeColor','none','CDataMapping','direct');
@@ -124,9 +124,14 @@ end
 
 end
 
-function [typeOfPlot, typeOfData, numHops] = getOptions(s)
+function [typeOfPlot, typeOfData, numHops] = getOptions(s, nameforoutput)
 % Get options for this function
 %
+if nargin < 2
+    nameforoutput = '';
+else
+    nameforoutput = [nameforoutput ':' 32];
+end
 typeOfPlot = [];
 typeOfData = 'La';
 numHops = 50;
@@ -144,9 +149,15 @@ for ix=1:length(fnames)
             typeOfData = getfield(s, name);
         case 'numHops'
             numHops = getfield(s, name);
+            if ischar(numHops)
+                numHops = str2num(numHops);
+                if isempty(numHops)
+                    numHops = 1;
+                end
+            end
         otherwise
-            fprintf('%s: ERROR, incorrect option selected: %s is NOT defined\n',...
-                mfilename, upper(name));
+            fprintf('%s%s: ERROR, incorrect option selected: %s is NOT defined\n',...
+                nameforoutput, mfilename, upper(name));
     end
 end
 end
