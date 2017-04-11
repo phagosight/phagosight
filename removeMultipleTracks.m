@@ -21,7 +21,7 @@ function [handles, prevhandles] = removeMultipleTracks(handles,tracks2rm,woundRe
 if nargin<2 || any(tracks2rm<1)||length(tracks2rm)>size(handles.finalNetwork,2)
     fprintf('%s: Please verify that the input parameters are correct.\n\n',...
         mfilename);
-    help removeMultipleTracks;
+    %help removeMultipleTracks;
     return;
 end
 
@@ -34,13 +34,14 @@ if nargout > 1
 end
 
 numtracks = length(tracks2rm);
-for ix = 1:numtracks
+for ix = numtracks:-1:1
     thistrack = tracks2rm(ix);
     try
         handles = removeOneTrack(handles, thistrack, woundRegion);
     catch e
-        fprintf('%s: Error processing track %d. Moving on to next tracks',...
+        fprintf('%s: Error processing track %d. Moving on to next tracks.\n',...
             mfilename,tracks2rm(ix));
+        disp(e.message);
     end
 end
 

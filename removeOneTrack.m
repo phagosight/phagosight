@@ -16,7 +16,7 @@ function handles = removeOneTrack(handles,trackToRemove,woundRegion)
 %
 %       OUTPUT
 %         handles:          updated handles
-%           
+           
 %--------------------------------------------------------------------------
 %
 %     Copyright (C) 2012  Constantino Carlos Reyes-Aldasoro
@@ -50,13 +50,14 @@ function handles = removeOneTrack(handles,trackToRemove,woundRegion)
 %--------------------------------------------------------------------------
 %
 % The authors shall not be liable for any errors or responsibility for the 
-% accuracy, completeness, or usefulness of any information, or method in the content, or for any 
-% actions taken in reliance thereon.
+% accuracy, completeness, or usefulness of any information, or method in the
+% content, or for any actions taken in reliance thereon.
 %
 %--------------------------------------------------------------------------
 
 if (nargin<2)||any(trackToRemove<1)||any(trackToRemove>size(handles.finalNetwork,2))
-    help removeOneTrack;
+    % help removeOneTrack;
+    fprintf('%s: Error with trackToRemove: %d \n', mfilename, trackToRemove);
     return;
 end
 
@@ -68,7 +69,7 @@ end
 
 % find the nodes of the track to remove
 trackIndex                                  = find(handles.finalNetwork (:,trackToRemove));
-nodeIndex                                   = handles.finalNetwork(trackIndex,trackToRemove); %#ok<FNDSB>
+nodeIndex                                   = handles.finalNetwork(trackIndex,trackToRemove);
 
 handles.finalNetwork(:,trackToRemove)           = [];
 
