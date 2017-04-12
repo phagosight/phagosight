@@ -2,20 +2,20 @@ function visualiseTracksAndFrames(handles)
 % visualiseTracksAndFrames. Tool to dynamically visualise the tracks from
 % structure handles, that allows the user to change the parameters of
 % plotTracksAndFrame in the same GUI.
-% 
-% USAGE: 
+%
+% USAGE:
 %       visualiseTracksAndFrames(handles)
-% 
+%
 % INPUT:
 %               handles := structure containing
 %                   nodeNetwork : [numRBC detected x 12 params]
 %                   finalNetwork: either 1 track or [depth of tracks x numTracks]
 %                   dataRe      : string with path to Reduced data (mat_Re)
 %                   dataLa      : string with path to Labelled data (mat_La)
-%               
-%               
+%
+%
 % see also plotTracks, PLOTTRACKSANDFRAME
-% 
+%
 
 if nargin < 1
     fprintf('%s: No handles structure specified. Loading GUI.\n', mfilename);
@@ -109,6 +109,7 @@ b3.Callback = @(es, ed)  plotTracksAndFrame(handles, ...
     'numHops',b5.String{b5.Value}));
 b4.Callback = @(es, ed)  plotTracksAndFrame(handles, ...
     round(b2.Value), round(b.Value), ...
+<<<<<<< HEAD
     setfield(setfield(setfield(options,...
     'typeOfData', b3.String{b3.Value}),...
     'typeOfPlot', es.String{es.Value}(1:2)),...
@@ -119,3 +120,7 @@ b5.Callback = @(es,ed) plotTracksAndFrame(handles,...
     'typeOfData', b3.String{b3.Value}), ...
     'typeOfPlot', b4.String{b4.Value}(1:2)),...
     'numHops',es.String{es.Value}));
+=======
+    setfield(setfield(options, 'typeOfData', b3.String{b3.Value}),...
+    'typeOfPlot', es.String{es.Value}(1:2)));
+>>>>>>> origin/dev
