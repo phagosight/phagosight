@@ -1,7 +1,7 @@
 function [newhandles] = fixhandlesdir(handles)
-% fixhandlesdir. Changes values for handles.dataRe and handles.dataLa to 
+% fixhandlesdir. Changes values for handles.dataRe and handles.dataLa to
 % fit the platform and (if on Windows) the location of the data.
-% 
+%
 % USAGE:
 %           [newhandles] = fixhandlesdir(handles)
 %
@@ -60,12 +60,33 @@ switch chooseplatform
         newhandles.dataRe = newdirRe;
         
     case 'mac'
-        newdirLa = uigetdir('.', 'Select dataLa folder');
-        newdirRe = uigetdir(newdirLa, 'Select dataRe folder');
-        
-        newhandles.dataLa = newdirLa;
-        newhandles.dataRe = newdirRe;
+        if ~isempty(strfind(handles.dataLa, '\'))
+            % folder names come from windows.
+            splitla = strsplit(handles.dataLa, '\');
+            splitre = strsplit(handles.dataRe, '\');
+            
+            a = dir('/Volumes');
+            a(1:2) = [];
+            a={a.name};
+            
+            for kx=1:length(a)
+                dirtest = joindirname({'/Volumes', a{kx}, splitla{2:end}});
+                if isdir(dirtest)
+                    newhandles.dataLa = dirtest;
+                    newhandles.dataRe = joindirname({'/Volumes', a{kx}, splitre{2:end}});
+                    break;
+                end
+            end
+            
+        else
+            newdirLa = uigetdir('.', 'Select dataLa folder');
+            newdirRe = uigetdir(newdirLa, 'Select dataRe folder');
+            
+            newhandles.dataLa = newdirLa;
+            newhandles.dataRe = newdirRe;
+        end
 end
+
 end
 
 function [platformused] = chooseplatform()
@@ -81,6 +102,7 @@ switch test
         platformused = 'mac';
 end
 end
+
 function [joineddir] = joindirname(splitdirname)
 % join folder name from splitstr's output.
 joineddir ='';
