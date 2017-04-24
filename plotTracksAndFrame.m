@@ -1,43 +1,42 @@
 function plotTracksAndFrame(handles, whichFrame, winsize, options)
-% plotTracksAndFrame. Plots the with PLOTTRACKS function around a
+% plotTracksAndFrame. Plots the with plotTracks function around a
 % frame(whichFrame) and zoomed in to the time axis (z-axis) in a window
 % determined by (winsize). The options can be set to determine the
-% parameter typeOfPlot of function PLOTTRACKS, as well as the minimum 
+% parameter typeOfPlot of function plotTracks, as well as the minimum
 % number of hops (numHops) necessary to plot the track or the type of data
 % that will be displayed ('La' or 'Re').
-% 
-% USAGE: 
+%
+% USAGE:
 %       plotTracksAndFrame(handles, whichFrame)
 %       plotTracksAndFrame(handles, whichFrame, winsize)
 %       plotTracksAndFrame(handles, whichFrame, winsize, options)
-% 
+%
 % INPUT:
 %               handles := structure containing
 %                   nodeNetwork : [numRBC detected x 12 params]
 %                   finalNetwork: either 1 track or [depth of tracks x numTracks]
 %                   dataRe      : string with path to Reduced data (mat_Re)
 %                   dataLa      : string with path to Labelled data (mat_La)
-%               
 %               whichFrame := Frame between 1 and handles.numFrames to
 %                           display on top of the tracks.
 %
 %               winsize := size of the window that the tracks will zoom
 %                           into the time (z) axis.
-%               
+%
 %               options :=  structure including at leaast one of the next
 %                           fields:
-%                   numHops    : minimum number of "hops" from 
+%                   numHops    : minimum number of "hops" from
 %                       handles.distanceNetwork.numHops to plot any track.
 %                   typeOfPlot : number from 1 - 14 for PLOTTRACKS function
-%                       or 'none' to plot tracks in green when 
+%                       or 'none' to plot tracks in green when
 %                       handles.distanceNetwork.numHops > numHops
-%                       or red when 
+%                       or red when
 %                       handles.distanceNetwork.numHops <= numHops
 %                   typeOfData : 'La', 'Re' or 'none' to determine which
 %                       frame will be placed alongside the tracks.
-%               
-% see also PLOTTRAACKS
-% 
+%
+% see also plotTracks
+%
 
 if ~isdir(handles.dataLa)
     %fprintf('%s: Checking conistency in dataRe/dataLa folder paths.\n', mfilename);
@@ -61,25 +60,25 @@ switch typeOfData
         bnames(1:2) = [];
         bnames = {bnames.name};
         currData = load(fullfile(handles.dataLa,bnames{whichFrame}));
-        
+
         X = getfield(currData, 'dataL');
-        
+
     case 'Re'
         bnames = dir(fullfile(handles.dataRe, '*.mat'));
         bnames = {bnames.name};
         currData = load(fullfile(handles.dataRe,bnames{whichFrame}));
         structnames = fieldnames(currData);
-        
+
         X = getfield(currData, structnames{1});
-        
+
     case 'none'
-        
+
     otherwise
         fprintf('%s: ERROR non recognised options.typeOfData: \n\t%s\n',...
             mfilename, typeOfData);
         fprintf('%s: try: "Re", "La".\n', mfilename);
         X = zeros(handles.rows, handles.cols);
-        
+
 end
 
 [xx,yy] = meshgrid(1:handles.cols, 1:handles.rows);
