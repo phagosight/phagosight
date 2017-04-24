@@ -49,15 +49,9 @@ if nargin<4
     numHops = 50;
 elseif nargin<3
     winsize = 10;
-<<<<<<< HEAD
-    [typeOfPlot, typeOfData, numHops] = getOptions(options, mfilename);
-else
-    [typeOfPlot, typeOfData, numHops] = getOptions(options, mfilename);
-=======
     [typeOfPlot, typeOfData, numHops] = getOptions(options);
 else
     [typeOfPlot, typeOfData, numHops] = getOptions(options);
->>>>>>> master
 end
 
 switch typeOfData
@@ -66,43 +60,25 @@ switch typeOfData
         bnames(1:2) = [];
         bnames = {bnames.name};
         currData = load(fullfile(handles.dataLa,bnames{whichFrame}));
-<<<<<<< HEAD
 
         X = getfield(currData, 'dataL');
 
-=======
-
-        X = getfield(currData, 'dataL');
-
->>>>>>> master
     case 'Re'
         bnames = dir(fullfile(handles.dataRe, '*.mat'));
         bnames = {bnames.name};
         currData = load(fullfile(handles.dataRe,bnames{whichFrame}));
         structnames = fieldnames(currData);
-<<<<<<< HEAD
 
         X = getfield(currData, structnames{1});
 
     case 'none'
 
-=======
-
-        X = getfield(currData, structnames{1});
-
-    case 'none'
-
->>>>>>> master
     otherwise
         fprintf('%s: ERROR non recognised options.typeOfData: \n\t%s\n',...
             mfilename, typeOfData);
         fprintf('%s: try: "Re", "La".\n', mfilename);
         X = zeros(handles.rows, handles.cols);
-<<<<<<< HEAD
 
-=======
-
->>>>>>> master
 end
 
 [xx,yy] = meshgrid(1:handles.cols, 1:handles.rows);
