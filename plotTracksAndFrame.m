@@ -17,7 +17,6 @@ function plotTracksAndFrame(handles, whichFrame, winsize, options)
 %                   finalNetwork: either 1 track or [depth of tracks x numTracks]
 %                   dataRe      : string with path to Reduced data (mat_Re)
 %                   dataLa      : string with path to Labelled data (mat_La)
-%
 %               whichFrame := Frame between 1 and handles.numFrames to
 %                           display on top of the tracks.
 %
@@ -50,9 +49,15 @@ if nargin<4
     numHops = 50;
 elseif nargin<3
     winsize = 10;
+<<<<<<< HEAD
     [typeOfPlot, typeOfData, numHops] = getOptions(options, mfilename);
 else
     [typeOfPlot, typeOfData, numHops] = getOptions(options, mfilename);
+=======
+    [typeOfPlot, typeOfData, numHops] = getOptions(options);
+else
+    [typeOfPlot, typeOfData, numHops] = getOptions(options);
+>>>>>>> master
 end
 
 switch typeOfData
@@ -61,25 +66,43 @@ switch typeOfData
         bnames(1:2) = [];
         bnames = {bnames.name};
         currData = load(fullfile(handles.dataLa,bnames{whichFrame}));
+<<<<<<< HEAD
 
         X = getfield(currData, 'dataL');
 
+=======
+
+        X = getfield(currData, 'dataL');
+
+>>>>>>> master
     case 'Re'
         bnames = dir(fullfile(handles.dataRe, '*.mat'));
         bnames = {bnames.name};
         currData = load(fullfile(handles.dataRe,bnames{whichFrame}));
         structnames = fieldnames(currData);
+<<<<<<< HEAD
 
         X = getfield(currData, structnames{1});
 
     case 'none'
 
+=======
+
+        X = getfield(currData, structnames{1});
+
+    case 'none'
+
+>>>>>>> master
     otherwise
         fprintf('%s: ERROR non recognised options.typeOfData: \n\t%s\n',...
             mfilename, typeOfData);
         fprintf('%s: try: "Re", "La".\n', mfilename);
         X = zeros(handles.rows, handles.cols);
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> master
 end
 
 [xx,yy] = meshgrid(1:handles.cols, 1:handles.rows);
@@ -95,9 +118,9 @@ if isempty(typeOfPlot)
         32, num2str(whichFrame), 32, 'Windows size =', 32, ...
         num2str(winsize));
     title(titlestr);
-    plotTracks(handles, 11, find(handles.distanceNetwork.numHops>=numHops));
+    plotTracks(handles, 11, find(handles.distanceNetwork.numHops>numHops));
     hold on;
-    plotTracks(handles, 12, find(handles.distanceNetwork.numHops<numHops));
+    plotTracks(handles, 12, find(handles.distanceNetwork.numHops<=numHops));
     if ~strcmp(typeOfData, 'none')
         surface(xx,yy,zz,X, 'FaceColor', 'texturemap', ...
             'EdgeColor','none','CDataMapping','direct');
@@ -124,14 +147,9 @@ end
 
 end
 
-function [typeOfPlot, typeOfData, numHops] = getOptions(s, nameforoutput)
+function [typeOfPlot, typeOfData, numHops] = getOptions(s)
 % Get options for this function
 %
-if nargin < 2
-    nameforoutput = '';
-else
-    nameforoutput = [nameforoutput ':' 32];
-end
 typeOfPlot = [];
 typeOfData = 'La';
 numHops = 50;
@@ -149,15 +167,9 @@ for ix=1:length(fnames)
             typeOfData = getfield(s, name);
         case 'numHops'
             numHops = getfield(s, name);
-            if ischar(numHops)
-                numHops = str2num(numHops);
-                if isempty(numHops)
-                    numHops = 1;
-                end
-            end
         otherwise
-            fprintf('%s%s: ERROR, incorrect option selected: %s is NOT defined\n',...
-                nameforoutput, mfilename, upper(name));
+            fprintf('%s: ERROR, incorrect option selected: %s is NOT defined\n',...
+                mfilename, upper(name));
     end
 end
 end
