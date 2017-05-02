@@ -336,6 +336,8 @@ if (isa(dataIn,'char'))
                 %User provided the threshold levels as an argument of
                 %the function
                 handles = setNeutrophilHandles(dataRe2,handles,thresLevels);
+            elseif processingLevel==4
+                handles = setNeutrophilHandles(dataRe2,handles,[], false);
             else
                 %Calculate and validate threshold levels
                 % TO REMOVE USER INPUT! USERINPUT
