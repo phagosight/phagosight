@@ -143,6 +143,13 @@ for ix=1:length(fnames)
             typeOfData = getfield(s, name);
         case 'numHops'
             numHops = getfield(s, name);
+            if ischar(numHops)
+                if strcmp(numHops, 'none')
+                    numHops = 0;
+                else
+                    numHops = str2num(numHops);
+                end
+            end
         otherwise
             fprintf('%s: ERROR, incorrect option selected: %s is NOT defined\n',...
                 mfilename, upper(name));
