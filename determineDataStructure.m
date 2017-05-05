@@ -60,18 +60,22 @@ function [handles,dataRe2] = determineDataStructure(dataRe,dataStructure)
 %%
 if isa(dataRe,'char')
     %dataRe is the path where the data is stored
-    dir1                                                    = dir(strcat(dataRe,'/*.mat'));
-    tempDir                                                 = dir1(1).name;
-    dataReName                                              = strcat(dataRe,'/',tempDir);
-    dataFromFile                                            = load(dataReName);
+    dir1 = dir(strcat(dataRe,'/*.mat'));
+    tempDir = dir1(1).name;
+    dataReName = strcat(dataRe,'/',tempDir);
+    dataFromFile = load(dataReName);
     if isfield(dataFromFile,'dataRe')
-        dataRe2                                             = dataFromFile.dataRe;
+        dataRe2 = dataFromFile.dataRe;
     else
-        namesF                                              = fieldnames(dataFromFile);
-        dataRe2                                             = getfield(dataFromFile,namesF{1}); %#ok<GFLD>
+        namesF = fieldnames(dataFromFile);
+        if isempty(namesF(contains(namesF,'dataR')))
+            dataRe2 = dataFromFile.(namesF{1});
+        else
+            dataRe2 = dataFromFile.(namesF{contains(namesF,'dataR')});
+        end
     end
-    handles.numFrames                                       = size(dir1,1); 
-    [handles.rows,handles.cols,handles.levs]                = size(dataRe2);
+    handles.numFrames = size(dir1,1); 
+    [handles.rows,handles.cols,handles.levs] = size(dataRe2);
 else
     %dataRe is a matlab matrix
     dataRe2=dataRe;

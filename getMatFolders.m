@@ -42,7 +42,14 @@ handlesDir.dataOr = [];
 handlesDir.dataRe = [];
 handlesDir.dataLa = [];
 
-lsdir = dir(strcat(baseFileName, '_mat_*'));
+if contains(baseFileName, '_mat_')
+    indx = strfind(baseFileName, '_mat_');
+    baseFileName = baseFileName(1:indx-1);
+    lsdir = dir(strcat(baseFileName(1:indx-1), '_mat_*'));
+else
+    lsdir = dir(strcat(baseFileName, '_mat_*'));
+end
+
 if ~isempty(lsdir)
     indx2path = strfind(baseFileName, filesep);
     indx2path = indx2path(end);
