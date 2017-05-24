@@ -10,6 +10,9 @@ newhandles = handles;
 splitla = strsplit(handles.dataLa, filesep);
 splitre = strsplit(handles.dataRe, filesep);
 
+fnames = fieldnames(handles);
+fnames = fnames(contains(fnames,'data'));
+
 if isdir(handles.dataLa)
     fprintf('%s: Folder names appear to be consistent. No changes done.\n',...
         mfilename);
@@ -22,7 +25,7 @@ switch chooseplatform
         b = strsplit(a,':');
         b = b{1};
         A = strsplit(a,b(end-1));
-
+        
         ix = 1;
         for i=1:length(A)
             if ~isempty(strfind(A{i},':'))
@@ -30,7 +33,7 @@ switch chooseplatform
                 ix=ix+1;
             end
         end
-
+        
         % test now if change is from windows to windows, or
         % something else to windows.
         if ~isempty(strfind(splitla{1}, ':'))
@@ -48,40 +51,42 @@ switch chooseplatform
         else
             newdirLa = uigetdir('.', 'Select dataLa folder');
             newdirRe = uigetdir(newdirLa, 'Select dataRe folder');
-
+            
             newhandles.dataLa = newdirLa;
             newhandles.dataRe = newdirRe;
         end
     case 'linux'
         newdirLa = uigetdir('.', 'Select dataLa folder');
         newdirRe = uigetdir(newdirLa, 'Select dataRe folder');
-
+        
         newhandles.dataLa = newdirLa;
         newhandles.dataRe = newdirRe;
-
+        
     case 'mac'
-        if ~isempty(strfind(handles.dataLa, '\'))
+        
+        if contains(handles.(fnames{1}), '\')
             % folder names come from windows.
-            splitla = strsplit(handles.dataLa, '\');
-            splitre = strsplit(handles.dataRe, '\');
-
-            a = dir('/Volumes');
-            a(1:2) = [];
-            a={a.name};
-
-            for kx=1:length(a)
-                dirtest = joindirname({'/Volumes', a{kx}, splitla{2:end}});
-                if isdir(dirtest)
-                    newhandles.dataLa = dirtest;
-                    newhandles.dataRe = joindirname({'/Volumes', a{kx}, splitre{2:end}});
-                    break;
+            
+            for ix=1:length(fnames)
+                splitme = strsplit(handles.(fnames{ix}),'\');
+                
+                a = dir('/Volumes');
+                a(1:2) = [];
+                a = {a.name};
+                for kx=1:length(a)
+                    dirtest = joindirname({'/Volumes', a{kx}, splitme{2:end}});
+                    %dirtest = strcat('/Volumes', filesep, a{kx}, filesep, ...
+                    %    splitme{2}, filesep, splitme{end});
+                    if isdir(dirtest)
+                        newhandles.(fnames{ix}) = dirtest;
+                        break;
+                    end
                 end
             end
-
         else
             newdirLa = uigetdir('.', 'Select dataLa folder');
             newdirRe = uigetdir(newdirLa, 'Select dataRe folder');
-
+            
             newhandles.dataLa = newdirLa;
             newhandles.dataRe = newdirRe;
         end
