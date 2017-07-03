@@ -47,11 +47,12 @@ if nargin<4
     typeOfPlot = [];
     typeOfData = 'none';
     numHops = 50;
+    tracks2plot = 'all';
 elseif nargin<3
     winsize = 10;
-    [typeOfPlot, typeOfData, numHops] = getOptions(options);
+    [typeOfPlot, typeOfData, numHops, tracks2plot] = getOptions(options);
 else
-    [typeOfPlot, typeOfData, numHops] = getOptions(options);
+    [typeOfPlot, typeOfData, numHops, tracks2plot] = getOptions(options);
 end
 
 switch typeOfData
@@ -123,12 +124,13 @@ end
 
 end
 
-function [typeOfPlot, typeOfData, numHops] = getOptions(s)
+function [typeOfPlot, typeOfData, numHops, tracks2plot] = getOptions(s)
 % Get options for this function
 %
 typeOfPlot = [];
 typeOfData = 'La';
 numHops = 50;
+tracks2plot = 'all';
 
 fnames = fieldnames(s);
 for ix=1:length(fnames)
@@ -150,6 +152,10 @@ for ix=1:length(fnames)
                     numHops = str2num(numHops);
                 end
             end
+        case 'tracks2plot'
+            tracks2plot = s.(name);
+            numHops = 1; 
+
         otherwise
             fprintf('%s: ERROR, incorrect option selected: %s is NOT defined\n',...
                 mfilename, upper(name));

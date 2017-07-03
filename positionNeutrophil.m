@@ -77,9 +77,11 @@ if isa(dataIn,'char')
         
         if isfield(dataFromFile,'dataIn')
             dataIn2                         = dataFromFile.dataIn;
+        elseif isfield(dataFromFile,'dataL')
+            dataIn2 = dataFromFile.dataL;
         else
             namesF                          = fieldnames(dataFromFile);
-            dataIn2                         = getfield(dataFromFile,namesF{1});
+            dataIn2                         = dataFromFile.dataL;
         end
 
         currentCentroids3                   = positionNeutrophil(dataIn2,counterDir,calculateSphericity);

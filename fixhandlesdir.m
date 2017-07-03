@@ -7,10 +7,11 @@ function [newhandles] = fixhandlesdir(handles)
 %
 
 newhandles = handles;
-splitla = strsplit(handles.dataLa, filesep);
-splitre = strsplit(handles.dataRe, filesep);
 
-if isdir(handles.dataLa)
+fnames = fieldnames(handles);
+fnames = fnames(contains(fnames,'data'));
+
+if isdir(handles.(fnames{1}))
     fprintf('%s: Folder names appear to be consistent. No changes done.\n',...
         mfilename);
     return
@@ -18,74 +19,49 @@ end
 
 switch chooseplatform
     case 'win'
-        [~,a] = system('wmic logicaldisk get caption');
-        b = strsplit(a,':');
+        [~,volumes] = system('wmic logicaldisk get caption');
+        b = strsplit(volumes,':');
         b = b{1};
-        A = strsplit(a,b(end-1));
+        A = strsplit(volumes,b(end-1));
 
         ix = 1;
+        clear volumes;
         for i=1:length(A)
             if ~isempty(strfind(A{i},':'))
-                dirName{ix} = strcat(A{i},'\');
+                volumes{ix} = strcat(A{i},'\');
                 ix=ix+1;
             end
         end
-
-        % test now if change is from windows to windows, or
-        % something else to windows.
-        if ~isempty(strfind(splitla{1}, ':'))
-            % windows2windows
-            for ix=1:length(dirName)
-                testdirname = fullfile(dirName{ix}, ...
-                    joindirname(splitla(2:end)));
-                if isdir(testdirname)
-                    newhandles.dataLa = testdirname;
-                    newhandles.dataRe = fullfile(dirName{ix},....
-                        joindirname(splitre(2:end)));
-                    break;
-                end
-            end
-        else
-            newdirLa = uigetdir('.', 'Select dataLa folder');
-            newdirRe = uigetdir(newdirLa, 'Select dataRe folder');
-
-            newhandles.dataLa = newdirLa;
-            newhandles.dataRe = newdirRe;
-        end
     case 'linux'
-        newdirLa = uigetdir('.', 'Select dataLa folder');
-        newdirRe = uigetdir(newdirLa, 'Select dataRe folder');
-
-        newhandles.dataLa = newdirLa;
-        newhandles.dataRe = newdirRe;
-
+        volumes = dir('/home');
+        volumes(1:2) = [];
+        volumes = {volumes.name};
+        
+        for jx=1:length(volumes)
+            volumes{jx} = fullfile('/media', volumes{jx});
+        end
     case 'mac'
-        if ~isempty(strfind(handles.dataLa, '\'))
-            % folder names come from windows.
-            splitla = strsplit(handles.dataLa, '\');
-            splitre = strsplit(handles.dataRe, '\');
+        volumes = dir('/Volumes');
+        volumes(1:2) = [];
+        volumes = {volumes.name};
+        
+        for jx=1:length(volumes)
+            volumes{jx} = fullfile('/Volumes', volumes{jx});
 
-            a = dir('/Volumes');
-            a(1:2) = [];
-            a={a.name};
-
-            for kx=1:length(a)
-                dirtest = joindirname({'/Volumes', a{kx}, splitla{2:end}});
-                if isdir(dirtest)
-                    newhandles.dataLa = dirtest;
-                    newhandles.dataRe = joindirname({'/Volumes', a{kx}, splitre{2:end}});
-                    break;
-                end
-            end
-
-        else
-            newdirLa = uigetdir('.', 'Select dataLa folder');
-            newdirRe = uigetdir(newdirLa, 'Select dataRe folder');
-
-            newhandles.dataLa = newdirLa;
-            newhandles.dataRe = newdirRe;
         end
 end
+
+for jx=1:length(volumes)
+    for kx=1:length(fnames)
+        [~, splitpath] = comesfrom(handles.(fnames{kx}));
+        dirtest = joindirname({volumes{jx}, splitpath});
+        if isdir(dirtest)
+            newhandles.(fnames{ix}) = dirtest;
+            break;
+        end
+    end
+end
+
 end
 
 function [platformused] = chooseplatform()
@@ -107,5 +83,32 @@ function [joineddir] = joindirname(splitdirname)
 joineddir ='';
 for jx=1:length(splitdirname)
     joineddir = strcat(joineddir, filesep, splitdirname{jx});
+end
+end
+
+function [op, splitpath] = comesfrom(somedatapath)
+% returns which platform does the
+if contains(somedatapath, ':')
+    op = 'win';
+    if nargout > 1
+        splitpath = strsplit(somedatapath, '\');
+        splitpath(1) = [];
+    end
+else
+    if contains(somedatapath, '/Volumes')
+        op = 'mac';
+        if nargout > 1
+            splitpath = strsplit(somedatapath, '/');
+            splidx = find(contains(splitpath, 'Volumes'));
+            splitpath(1:splidx) = [];
+        end
+    else
+        op = 'linux';
+        if nargout > 1
+            splitpath = strsplit(somedatapath, '/');
+            splidx = find(contains(splitpath, 'media'));
+            splitpath(1:(splidx+1)) = [];
+        end
+    end
 end
 end
