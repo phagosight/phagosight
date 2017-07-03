@@ -155,6 +155,7 @@ for ix=1:length(fnames)
         case 'tracks2plot'
             tracks2plot = s.(name);
             numHops = 1; 
+
         otherwise
             fprintf('%s: ERROR, incorrect option selected: %s is NOT defined\n',...
                 mfilename, upper(name));

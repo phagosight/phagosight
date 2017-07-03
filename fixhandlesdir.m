@@ -23,7 +23,7 @@ switch chooseplatform
         b = strsplit(volumes,':');
         b = b{1};
         A = strsplit(volumes,b(end-1));
-        
+
         ix = 1;
         clear volumes;
         for i=1:length(A)
@@ -47,6 +47,7 @@ switch chooseplatform
         
         for jx=1:length(volumes)
             volumes{jx} = fullfile('/Volumes', volumes{jx});
+
         end
 end
 
