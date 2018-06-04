@@ -23,6 +23,10 @@ set to empty arrays `[]`. For a detailed review of the input parameters, the
 ```Matlab
 help neutrophilAnalysis
 ```
+### User Manual
+
+For a detailed and comprehensive user manual, check the Wiki section.
+
 ### Output and results
 Phagosight returns variable `handles`, which contains information about the 
 tracks and locations where results from intermediate steps are stored. For 
