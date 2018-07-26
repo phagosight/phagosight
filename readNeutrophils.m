@@ -322,8 +322,24 @@ switch nargin
                     %%%%% TOOOO1C01Z001 to assign structure to the handles if it is
                     %%%%% NOT, then assign one file per time frame
                     %% identical positions of first and last files
-                    CommonNameElements      = dir1(1).name==dir1(end).name;
-                    DifferentNameLocations  = find(1-CommonNameElements);
+                    %CommonNameElements      = dir1(1).name==dir1(end).name;
+                    %DifferentNameLocations  = find(1-CommonNameElements);
+                    
+                    % To detect the CommonName Elements, it is not possible
+                    % to just compare first and last, this works well when
+                    % there are names like 00 and 99, but when there are
+                    % cases like 000 and 107, the 0 in between is not
+                    % detected, thus it is better to use the following
+                    % code, line up all names, find the standard deviation
+                    % of the names and only those that do not change will
+                    % be zero:
+                    sizeFileName    =  numel(dir1(1).name);
+                    allNamesDir     = reshape([dir1(1:end).name],sizeFileName,numFiles)';
+                    DifferentNameLocations = find(std(allNamesDir)>0);
+                    %DifferentNameLocations  = find(1-CommonNameElements);
+                    % identical positions of first and last files
+                    %CommonNameElements      = dir1(1).name==dir1(end).name;
+                    %DifferentNameLocations  = find(1-CommonNameElements);                    
                     %% Positions of T, C, Z
                     FindT                   = strfind(dir1(1).name,'T');
                     FindC                   = strfind(dir1(1).name,'C');
