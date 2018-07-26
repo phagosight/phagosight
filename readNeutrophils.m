@@ -384,7 +384,8 @@ switch nargin
                                     currentSlice    = currentSlice +1;
                                     %currentSlice    = (counterZ+1) + maxValZ*counterChannels;
                                     
-                                    dataInName1 = strcat(dataInName,dir1(currentSlice).name);
+                                    %dataInName1 = strcat(dataInName,dir1(currentSlice).name);
+                                    dataInName1 = strcat(dataInName,dir1(((maxValC+1)*(maxValZ+1))*counterFrames+currentSlice).name);
                                     
                                     dataIn(:,:,currentSlice) = imread(dataInName1);
                                     %disp([counterFrames counterChannels counterZ currentSlice])
