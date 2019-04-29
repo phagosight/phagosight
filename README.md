@@ -25,7 +25,7 @@ help neutrophilAnalysis
 ```
 ### User Manual
 
-For a detailed and comprehensive user manual, check the Wiki section.
+For a detailed and comprehensive user manual, check the Wiki (https://github.com/phagosight/phagosight/wiki) section.
 
 ### Output and results
 Phagosight returns variable `handles`, which contains information about the 
