@@ -39,6 +39,9 @@ folders created:
 ## Citation
 Phagosight is released under the GNU General Public License v3. 
 Please cite Phagosight in your publications if it helps your research:
+
+[https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0072636](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0072636)
+
 ```BibTex
 @article{Henry2013,
  author = {Henry, Katherine and Pase, Luke and Ramos-Lopez, Carlos Fernando and
